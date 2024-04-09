@@ -1,0 +1,29 @@
+[versions]
+agp = "8.3.0"
+constraintlayout = "2.1.4"
+junit = "4.13.2"
+junitVersion = "1.1.5"
+espressoCore = "3.5.1"
+appcompat = "1.6.1"
+material = "1.11.0"
+mpandroidchart = "v3.1.0"
+rxjava = "2.2.21"
+rxlifecycle = "3.1.0"
+rxlifecycleAndroidLifecycle = "3.0.0"
+
+[libraries]
+constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "mpandroidchart" }
+rxjava = { module = "io.reactivex.rxjava2:rxjava", version.ref = "rxjava" }
+rxlifecycle = { module = "com.trello.rxlifecycle3:rxlifecycle", version.ref = "rxlifecycle" }
+rxlifecycle-android = { module = "com.trello.rxlifecycle3:rxlifecycle-android", version.ref = "rxlifecycle" }
+rxlifecycle-android-lifecycle = { module = "com.trello.rxlifecycle3:rxlifecycle-android-lifecycle", version.ref = "rxlifecycleAndroidLifecycle" }
+
+[plugins]
+androidApplication = { id = "com.android.application", version.ref = "agp" }
+

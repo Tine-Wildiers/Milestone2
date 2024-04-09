@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"
+    android:orientation="vertical">
+
+    <Button
+        android:id="@+id/btnStart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="onBtnStartClicked"
+        android:text="START"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edtTxtName" />
+    <Button
+        android:id="@+id/btnStop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="onBtnStopClicked"
+        android:text="STOP"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edtTxtName" />
+
+    <com.github.mikephil.charting.charts.LineChart
+        android:id="@+id/timechart"
+        android:layout_width="971dp"
+        android:layout_height="113dp" />
+
+    <com.github.mikephil.charting.charts.ScatterChart
+        android:id="@+id/scatterchart"
+        android:layout_width="972dp"
+        android:layout_height="143dp" />
+
+    <TextView
+        android:id="@+id/dlOutput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Hello World" />
+
+    <Button
+        android:id="@+id/dlbutton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Test Deep Learning Model"
+        android:onClick="onBtnDLClicked" />
+
+
+</LinearLayout>
