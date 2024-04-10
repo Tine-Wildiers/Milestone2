@@ -26,6 +26,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    buildFeatures {
+        mlModelBinding true
+    }
 }
 
 
@@ -39,6 +42,8 @@ dependencies {
     implementation libs.rxlifecycle.android
     implementation libs.rxlifecycle.android.lifecycle
     implementation libs.mpandroidchart
+    implementation libs.tensorflow.lite.support
+    implementation libs.tensorflow.lite.metadata
 
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit

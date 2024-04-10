@@ -5,51 +5,129 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity"
-    android:orientation="vertical">
+    android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/btnStart"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="onBtnStartClicked"
-        android:text="START"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edtTxtName" />
-    <Button
-        android:id="@+id/btnStop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="onBtnStopClicked"
-        android:text="STOP"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edtTxtName" />
+    <!-- First LinearLayout -->
+    <LinearLayout
+        android:layout_width="716dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:context=".MainActivity">
 
-    <com.github.mikephil.charting.charts.LineChart
-        android:id="@+id/timechart"
-        android:layout_width="971dp"
-        android:layout_height="113dp" />
+        <Button
+            android:id="@+id/btnStart"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="onBtnStartClicked"
+            android:text="START"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/edtTxtName" />
 
-    <com.github.mikephil.charting.charts.ScatterChart
-        android:id="@+id/scatterchart"
-        android:layout_width="972dp"
-        android:layout_height="143dp" />
+        <Button
+            android:id="@+id/btnStop"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="onBtnStopClicked"
+            android:text="STOP"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/edtTxtName" />
 
-    <TextView
-        android:id="@+id/dlOutput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Hello World" />
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/timechart"
+            android:layout_width="match_parent"
+            android:layout_height="184dp" />
 
-    <Button
-        android:id="@+id/dlbutton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Test Deep Learning Model"
-        android:onClick="onBtnDLClicked" />
+        <com.github.mikephil.charting.charts.ScatterChart
+            android:id="@+id/scatterchart"
+            android:layout_width="716dp"
+            android:layout_height="212dp" />
 
+        <TextView
+            android:id="@+id/dlOutput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Hello World" />
+
+        <Button
+            android:id="@+id/dlbutton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="onBtnDLClicked"
+            android:text="Test Deep Learning Model" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="233dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerInParent="true"
+            android:text="Take Picture"
+            android:textAllCaps="false"
+            android:textSize="21sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="match_parent"
+            android:layout_height="242dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10sp" />
+
+        <TextView
+            android:id="@+id/classified"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/imageView"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10sp"
+            android:text="Classified as:"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/result"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/classified"
+            android:layout_centerHorizontal="true"
+            android:text=""
+            android:textColor="#C30000"
+            android:textSize="27sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/confidencesText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/result"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="30sp"
+            android:text="Confidences:"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/confidence"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/confidencesText"
+            android:layout_centerHorizontal="true"
+            android:text=""
+            android:textColor="#000"
+            android:textSize="22sp" />
+
+    </LinearLayout>
 
 </LinearLayout>

@@ -1,13 +1,24 @@
 package com.example.milestone2;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.media.ThumbnailUtils;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.milestone2.ml.Model;
+import com.example.milestone2.types.CSVFile;
 import com.example.milestone2.types.DoubleValues;
 import com.example.milestone2.types.ShortValues;
 import com.github.mikephil.charting.charts.LineChart;
@@ -17,10 +28,14 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+
 import com.trello.rxlifecycle3.android.FragmentEvent;
 import com.trello.rxlifecycle3.android.RxLifecycleAndroid;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
+import java.util.List;
 
 import io.reactivex.subjects.BehaviorSubject;
 
@@ -41,18 +56,52 @@ public class MainActivity extends AppCompatActivity {
     private final ShortValues audioDSy = new ShortValues(dataProvider.getBufferSize());
     private LineChart frequencyChart;
     Entry[] frequencyPlot = new Entry[fftSize];
+    private ModelHandler modelHandler;
+
+    TextView result, confidence;
+    ImageView imageView;
+    Button picture;
+    int imageSize = 224;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        String fileName = "magma_colors_argb.csv";
+
+        InputStream inputStream = getResources().openRawResource(R.raw.magma_colors_argb);
+        CSVFile csvFile = new CSVFile(inputStream);
+        List palette = csvFile.read();
+        frequencyDomain.setColorPalette(palette);
+
         timeDomain.setTimeChart(findViewById(R.id.timechart));
         frequencyDomain.setSpectrogramChart(findViewById(R.id.scatterchart));
 
         timeDomain.setupTimeChart();
         frequencyDomain.setupSpectrogramGraph();
 
+        result = findViewById(R.id.result);
+        confidence = findViewById(R.id.confidence);
+        imageView = findViewById(R.id.imageView);
+        picture = findViewById(R.id.button);
 
+
+        picture.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Launch camera if we have permission
+                if (checkSelfPermission(android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                    Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    startActivityForResult(cameraIntent, 1);
+                } else {
+                    //Request camera permission if we don't have it.
+                    requestPermissions(new String[]{Manifest.permission.CAMERA}, 100);
+                }
+            }
+        });
+
+        modelHandler = new ModelHandler(result, confidence, imageView, picture);
 
         //Python py = Python.getInstance();
         //PyObject module = py.getModule( "Mel_Spectrogram" );
@@ -60,6 +109,9 @@ public class MainActivity extends AppCompatActivity {
 
         //frequencyChart = findViewById(R.id.frequencychart);
         //setupFrequencyGraph();
+
+
+
     }
 
     public void onBtnStartClicked(View view){
@@ -81,19 +133,9 @@ public class MainActivity extends AppCompatActivity {
         dataProvider.saveAudioToFile(audioDSy);
         audioDSy.clear();
         dataProvider.resetAudioRecord();
-
-        /*
-        PySystemState pyState = new PySystemState() ;
-        PythonInterpreter pythonInterpreter = new PythonInterpreter(null, pyState);
-        pythonInterpreter.exec("import sys");
-        pythonInterpreter.exec("sys.path.append('C:\\Users\\tinew\\Documents\\kul\\MaNaMa\\Melspectrogram)"); // Add path to your Python script
-        pythonInterpreter.execfile("C:\\Users\\tinew\\Documents\\kul\\MaNaMa\\Melspectrogram\\melspectrogram.py"); // Execute your Python script
-        pythonInterpreter.exec("generate_mel_spectrogram()"); // Call your Python function
-         */
     }
 
     public void onBtnDLClicked(View view) {
-
         TextView text = (TextView) findViewById(R.id.dlOutput);
         text.setText("Something Else");
     }
@@ -213,5 +255,23 @@ public class MainActivity extends AppCompatActivity {
 
         frequencyChart.setData(lineData);
         frequencyChart.invalidate();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == 1 && resultCode == RESULT_OK) {
+            Bitmap image = (Bitmap) data.getExtras().get("data");
+            int dimension = Math.min(image.getWidth(), image.getHeight());
+            image = ThumbnailUtils.extractThumbnail(image, dimension, dimension);
+            imageView.setImageBitmap(image);
+
+            image = Bitmap.createScaledBitmap(image, imageSize, imageSize, false);
+            try {
+                modelHandler.classifyImage(image, Model.newInstance(getApplicationContext()));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

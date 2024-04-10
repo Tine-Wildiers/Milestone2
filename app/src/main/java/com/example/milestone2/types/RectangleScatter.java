@@ -9,8 +9,8 @@ import com.github.mikephil.charting.utils.ViewPortHandler;
 
 public class RectangleScatter implements IShapeRenderer {
 
-    private float mWidth;
-    private float mHeight;
+    private final float mWidth;
+    private final float mHeight;
 
     public RectangleScatter(float width, float height) {
         this.mWidth = width;
