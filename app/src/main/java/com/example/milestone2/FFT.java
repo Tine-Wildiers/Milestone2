@@ -4,9 +4,6 @@ public class FFT {
     double[] real;
     double[] imag;
 
-    /**
-     * Performs Fast Fourier Transformation in place.
-     */
     public void process(double[] signal) {
         final int numPoints = signal.length;
         // initialize real & imag array

@@ -4,9 +4,12 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.ThumbnailUtils;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -17,11 +20,15 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.milestone2.ml.MobileModel;
+import com.example.milestone2.ml.MobileModelV2;
 import com.example.milestone2.ml.Model;
 import com.example.milestone2.types.CSVFile;
 import com.example.milestone2.types.DoubleValues;
 import com.example.milestone2.types.ShortValues;
+import com.example.milestone2.types.WavFileReader;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.charts.ScatterChart;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -32,10 +39,15 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.trello.rxlifecycle3.android.FragmentEvent;
 import com.trello.rxlifecycle3.android.RxLifecycleAndroid;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import io.reactivex.subjects.BehaviorSubject;
 
@@ -62,6 +74,16 @@ public class MainActivity extends AppCompatActivity {
     ImageView imageView;
     Button picture;
     int imageSize = 224;
+
+    //TODO: Handler start enkel als op startknop is geklikt
+    Handler handler = new Handler();
+    Runnable saveScatterChartRunnable = new Runnable() {
+        @Override
+        public void run() {
+            saveScatterChart();
+            handler.postDelayed(this, 5000); // Execute this Runnable again after 5 seconds
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,15 +125,11 @@ public class MainActivity extends AppCompatActivity {
 
         modelHandler = new ModelHandler(result, confidence, imageView, picture);
 
-        //Python py = Python.getInstance();
-        //PyObject module = py.getModule( "Mel_Spectrogram" );
+        handler.postDelayed(saveScatterChartRunnable, 5000); // Start the repeating task to save ScatterChart every 5 seconds
 
 
         //frequencyChart = findViewById(R.id.frequencychart);
         //setupFrequencyGraph();
-
-
-
     }
 
     public void onBtnStartClicked(View view){
@@ -136,6 +154,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onBtnDLClicked(View view) {
+        double[] audioData = WavFileReader.readWavFile(this);
+
+        MelSpectrogram melSpectrogram = new MelSpectrogram();
+        melSpectrogram.process(audioData);
+
         TextView text = (TextView) findViewById(R.id.dlOutput);
         text.setText("Something Else");
     }
@@ -260,18 +283,27 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == 1 && resultCode == RESULT_OK) {
-            Bitmap image = (Bitmap) data.getExtras().get("data");
+            InputStream inputStream = getResources().openRawResource(R.raw.lr21);
+            Bitmap image = BitmapFactory.decodeStream(inputStream);
+            //Bitmap image = (Bitmap) data.getExtras().get("data");
             int dimension = Math.min(image.getWidth(), image.getHeight());
             image = ThumbnailUtils.extractThumbnail(image, dimension, dimension);
             imageView.setImageBitmap(image);
 
             image = Bitmap.createScaledBitmap(image, imageSize, imageSize, false);
             try {
-                modelHandler.classifyImage(image, Model.newInstance(getApplicationContext()));
+                //modelHandler.classifyImage(image, Model.newInstance(getApplicationContext()));
+                modelHandler.classifySound(image, MobileModelV2.newInstance(getApplicationContext()));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void saveScatterChart() {
+        ScatterChart chart = findViewById(R.id.scatterchart);
+        String timeStamp = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.getDefault()).format(new Date());
+        chart.saveToPath("Melspectrogram"+timeStamp, "/DCIM/Melspectrograms");
     }
 }

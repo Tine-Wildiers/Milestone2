@@ -2,8 +2,10 @@ package com.example.milestone2;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Environment;
 
 import com.example.milestone2.types.CSVFile;
 import com.example.milestone2.types.MyScatterDataSet;
@@ -15,6 +17,8 @@ import com.github.mikephil.charting.data.ScatterData;
 import com.github.mikephil.charting.data.ScatterDataSet;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,15 +33,15 @@ public class FrequencyDomain {
         return spectogramYRes;
     }
 
-    private final int spectogramXRes = 15;
-    private final int spectogramYRes = 16;
+    private final int spectogramXRes = 30;
+    private final int spectogramYRes = 32;
     MyScatterDataSet spectrogramDS;
     List<Integer> colors = new ArrayList<>();
-    List<String> colorMapper = new ArrayList<String>();
+    List<Integer> colorMapper = new ArrayList<Integer>();
     int index;
-    String color;
     int colorMapperSize;
-    double normalizedY;
+    String argbVal;
+    int alpha, red, green, blue;
 
     public FrequencyDomain() {
 
@@ -47,9 +51,15 @@ public class FrequencyDomain {
         this.spectrogramChart = spectrogramChart;
     }
 
-    public void setColorPalette(List colorPalette){
-        colorMapper = colorPalette;
+    public void setColorPalette(List<String> colorPalette){
         colorMapperSize = colorPalette.size();
+        for (String argbVal : colorPalette) {
+            int alpha = Integer.parseInt(argbVal.substring(0, 2), 16);
+            int red = Integer.parseInt(argbVal.substring(2, 4), 16);
+            int green = Integer.parseInt(argbVal.substring(4, 6), 16);
+            int blue = Integer.parseInt(argbVal.substring(6, 8), 16);
+            colorMapper.add(Color.argb(alpha, red, green, blue));
+        }
     }
 
     public void setupSpectrogramGraph(){
@@ -60,23 +70,12 @@ public class FrequencyDomain {
 
         List<Entry> entries = new ArrayList<>();
 
-
-
         for (int i = 0; i < spectogramXRes; i++) {
             for (int j = 0; j < spectogramYRes; j++){
                 //int color = Color.HSVToColor(new float[]{(float) (i * j * 120) /(spectogramXRes*spectogramYRes), 1f, 1f});
-
                 double calcVal = ( (double) (i * j) /(spectogramXRes*spectogramYRes) * colorMapperSize);
                 index = Math.min((int) calcVal, colorMapperSize - 1);
-                String argbVal = colorMapper.get(index);
-
-                // Parse the ARGB value from the string
-                int alpha = Integer.parseInt(argbVal.substring(0, 2), 16);
-                int red = Integer.parseInt(argbVal.substring(2, 4), 16);
-                int green = Integer.parseInt(argbVal.substring(4, 6), 16);
-                int blue = Integer.parseInt(argbVal.substring(6, 8), 16);
-
-                int color = Color.argb(alpha, red, green, blue);
+                int color = colorMapper.get(index);
                 colors.add(color);
                 entries.add(new Entry(i, j));
             }
@@ -89,23 +88,22 @@ public class FrequencyDomain {
 
         spectrogramChart.setData(scatterData);
         spectrogramChart.invalidate();
+
+
+        spectrogramChart.buildDrawingCache();
     }
 
     public void updateSpectrogram(double[] downScaledArray){
         for (int i = 0; i < spectogramYRes; i++) {
-            // Convert HSV color to RGB
-            //int color = Color.HSVToColor(new float[]{(float) interpolateHue(downScaledArray[i]), 1f, 1f});
 
+            // --- old version ---
+            int color = Color.HSVToColor(new float[]{(float) interpolateHue(downScaledArray[i]), 1f, 1f});
 
-            String argbVal = interpolateARGB(downScaledArray[i]);
+            // --- new version ---
+            //index = Math.min((int) ((downScaledArray[i] +50) * colorMapperSize / 100f), colorMapperSize - 1);
+            //int color = colorMapper.get(index);
+            //TODO: deze manier proberen implementeren in interpolateHue methode achtig iets ipv die csv te lezen
 
-            // Parse the ARGB value from the string
-            int alpha = Integer.parseInt(argbVal.substring(0, 2), 16);
-            int red = Integer.parseInt(argbVal.substring(2, 4), 16);
-            int green = Integer.parseInt(argbVal.substring(4, 6), 16);
-            int blue = Integer.parseInt(argbVal.substring(6, 8), 16);
-
-            int color = Color.argb(alpha, red, green, blue);
             colors.add(color);
         }
 
@@ -124,14 +122,5 @@ public class FrequencyDomain {
     private double interpolateHue(double yValue) {
         double normalizedY = (yValue +20) / 100f;
         return 240f * (1f - normalizedY);
-    }
-
-    private String interpolateARGB(double value){
-        //TODO: heel deze methode efficienter maken
-        //TODO: beter snappen waar die Y vandaan komt
-        normalizedY = (value +50);
-        index = Math.min((int) (normalizedY * colorMapperSize / 100f), colorMapperSize - 1);
-        color = colorMapper.get(index);
-        return color;
     }
 }

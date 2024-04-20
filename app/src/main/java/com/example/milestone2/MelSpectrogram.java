@@ -6,9 +6,9 @@ public class MelSpectrogram {
     private final static double    fMin                 = 0.0;
     private final static int       n_fft                = 2048;
     private final static int       hop_length           = 512;
-    private final static int	   n_mels               = 128;
+    private final static int	   n_mels               = 256;
 
-    private final static double    sampleRate           = 16000.0;
+    private final static double    sampleRate           = 44100;
     private final static double    fMax                 = sampleRate/2.0;
 
     FFT fft = new FFT();
@@ -54,10 +54,12 @@ public class MelSpectrogram {
 
 
     //mel spectrogram, librosa
+    //1: Start by computing filters and stft
     private double[][] melSpectrogram(double[] y){
-        double[][] melBasis = melFilter();
-        double[][] spectro = stftMagSpec(y);
-        double[][] melS = new double[melBasis.length][spectro[0].length];
+
+        double[][] melBasis = melFilter(); //256x1025
+        double[][] spectro = stftMagSpec(y); //1025x403
+        double[][] melS = new double[melBasis.length][spectro[0].length]; //256x403
         for (int i = 0; i < melBasis.length; i++){
             for (int j = 0; j < spectro[0].length; j++){
                 for (int k = 0; k < melBasis[0].length; k++){
@@ -65,16 +67,15 @@ public class MelSpectrogram {
                 }
             }
         }
-        return melS;
+        return melS; //Dit komt overeen met wat python uitkomt voor S
     }
 
 
     //stft, librosa
     private double[][] stftMagSpec(double[] y){
         //Short-time Fourier transform (STFT)
-        final double[] fftwin = getWindow();
-        //pad y with reflect mode so it's centered. This reflect padding implementation is
-        // not perfect but works for this demo.
+        final double[] fftwin = getWindow(); //Hann Window
+
         double[] ypad = new double[n_fft+y.length];
         for (int i = 0; i < n_fft/2; i++){
             ypad[(n_fft/2)-i-1] = y[i+1];
@@ -134,7 +135,6 @@ public class MelSpectrogram {
         return winFrames;
     }
 
-    //power to db, librosa
     private double[][] powerToDb(double[][] melS){
         //Convert a power spectrogram (amplitude squared) to decibel (dB) units
         //  This computes the scaling ``10 * log10(S / ref)`` in a numerically
@@ -155,19 +155,16 @@ public class MelSpectrogram {
             }
         }
 
-        //set top_db to 80.0
         for (int i = 0; i < melS.length; i++){
             for (int j = 0; j < melS[0].length; j++){
-                if (log_spec[i][j] < maxValue - 80.0){
-                    log_spec[i][j] = maxValue - 80.0;
+                if (log_spec[i][j] < maxValue - 100.0){
+                    log_spec[i][j] = maxValue - 100.0;
                 }
             }
         }
-        //ref is disabled, maybe later.
         return log_spec;
     }
 
-    //dct, librosa
     private double[][] dctFilter(int n_filters, int n_input){
         //Discrete cosine transform (DCT type-III) basis.
         double[][] basis = new double[n_filters][n_input];
@@ -232,8 +229,6 @@ public class MelSpectrogram {
             }
         }
         return weights;
-
-        //need to check if there's an empty channel somewhere
     }
 
     //fft frequencies, librosa
