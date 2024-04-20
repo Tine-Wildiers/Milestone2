@@ -90,8 +90,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        String fileName = "magma_colors_argb.csv";
-
         InputStream inputStream = getResources().openRawResource(R.raw.magma_colors_argb);
         CSVFile csvFile = new CSVFile(inputStream);
         List palette = csvFile.read();
@@ -107,22 +105,6 @@ public class MainActivity extends AppCompatActivity {
         confidence = findViewById(R.id.confidence);
         imageView = findViewById(R.id.imageView);
         picture = findViewById(R.id.button);
-
-
-        picture.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Launch camera if we have permission
-                if (checkSelfPermission(android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                    Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    startActivityForResult(cameraIntent, 1);
-                } else {
-                    //Request camera permission if we don't have it.
-                    requestPermissions(new String[]{Manifest.permission.CAMERA}, 100);
-                }
-            }
-        });
-
         modelHandler = new ModelHandler(result, confidence, imageView, picture);
 
         handler.postDelayed(saveScatterChartRunnable, 5000); // Start the repeating task to save ScatterChart every 5 seconds
@@ -161,6 +143,22 @@ public class MainActivity extends AppCompatActivity {
 
         TextView text = (TextView) findViewById(R.id.dlOutput);
         text.setText("Something Else");
+    }
+
+    public void onBtnTestModelClicked(View view){
+        InputStream inputStream = getResources().openRawResource(R.raw.lr22);
+
+        Bitmap image = BitmapFactory.decodeStream(inputStream);
+        int dimension = Math.min(image.getWidth(), image.getHeight());
+        image = ThumbnailUtils.extractThumbnail(image, dimension, dimension);
+        imageView.setImageBitmap(image);
+
+        image = Bitmap.createScaledBitmap(image, imageSize, imageSize, false);
+        try {
+            modelHandler.classifySound(image, MobileModelV2.newInstance(getApplicationContext()));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     protected void startListening() {
@@ -278,27 +276,6 @@ public class MainActivity extends AppCompatActivity {
 
         frequencyChart.setData(lineData);
         frequencyChart.invalidate();
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (requestCode == 1 && resultCode == RESULT_OK) {
-            InputStream inputStream = getResources().openRawResource(R.raw.lr21);
-            Bitmap image = BitmapFactory.decodeStream(inputStream);
-            //Bitmap image = (Bitmap) data.getExtras().get("data");
-            int dimension = Math.min(image.getWidth(), image.getHeight());
-            image = ThumbnailUtils.extractThumbnail(image, dimension, dimension);
-            imageView.setImageBitmap(image);
-
-            image = Bitmap.createScaledBitmap(image, imageSize, imageSize, false);
-            try {
-                //modelHandler.classifyImage(image, Model.newInstance(getApplicationContext()));
-                modelHandler.classifySound(image, MobileModelV2.newInstance(getApplicationContext()));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private void saveScatterChart() {
