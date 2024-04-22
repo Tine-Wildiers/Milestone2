@@ -123,4 +123,12 @@ public class FrequencyDomain {
         double normalizedY = (yValue +20) / 100f;
         return 240f * (1f - normalizedY);
     }
+
+    public int getColor(int index){
+        return colorMapper.get(index);
+    }
+
+    public int getColorMapperSize(){
+        return colorMapperSize;
+    }
 }
