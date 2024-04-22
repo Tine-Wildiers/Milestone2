@@ -12,10 +12,10 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 public class WavFileReader {
-    public static float[] readWavFile(Context context) {
+    public static float[] readWavFile(InputStream inputStream) {
         try {
             // Open the WAV file from the resources
-            InputStream inputStream = context.getResources().openRawResource(R.raw.w1400bl10);
+
 
             byte[] header = new byte[44];
             inputStream.read(header, 0, header.length);

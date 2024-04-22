@@ -40,6 +40,8 @@ import com.trello.rxlifecycle3.android.FragmentEvent;
 import com.trello.rxlifecycle3.android.RxLifecycleAndroid;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -123,23 +125,63 @@ public class MainActivity extends AppCompatActivity {
         handler.postDelayed(saveScatterChartRunnable, 5000); // Start the repeating task to save ScatterChart every 5 seconds
     }
 
-    public void onBtnStopClicked(View view){
+    public void onBtnStopClicked(View view) throws FileNotFoundException {
         handler.removeCallbacksAndMessages(null);
         dataProvider.setPaused(true);
         dataProvider.tryStop();
-        dataProvider.saveAudioToFile(audioDSy);
+        String timeStamp = new SimpleDateFormat("yyyy_MM_dd_HH_mm", Locale.getDefault()).format(new Date());
+        String fileName = timeStamp + ".wav";
+        File file = dataProvider.saveAudioToFile(fileName, audioDSy);
         audioDSy.clear();
         dataProvider.resetAudioRecord();
-    }
 
-    public void onBtnDLClicked(View view) {
-        float[] audioData = WavFileReader.readWavFile(this);
+        //InputStream inputStream = getResources().openRawResource(R.raw.w1400bl10);
+        InputStream inputStream = new FileInputStream(file);
+
+
+        float[] audioData = WavFileReader.readWavFile(inputStream);
 
         MelSpectrogram melSpectrogram = new MelSpectrogram();
         float[][] melspec = melSpectrogram.process(audioData);
 
-        //TODO: van spectrogram een image maken, chatgpt gaat helpen
-        // Assuming your float[][] array is named floatArray
+        int width = melspec.length; // Width of the image
+        int height = melspec[0].length; // Height of the image
+
+        // Create a blank bitmap with the specified width and height
+        Bitmap image = Bitmap.createBitmap(height, width, Bitmap.Config.ARGB_8888);
+
+        // Loop through each pixel in the float array and set the corresponding pixel in the bitmap
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                // Assuming the values in floatArray are in the range [0, 1]
+                //int pixelValue = (int) ((melspec[x][y]+100)/100 * 255); // Scale float value to [0, 255]
+                //int color = Color.rgb(pixelValue, pixelValue, pixelValue); // Create grayscale color
+                int index = (int) (melspec[x][y]+100)* frequencyDomain.getColorMapperSize()/100;
+                //TODO: deze capping beter instellen
+                if(index<0){
+                    index = 0;
+                } else if (index>426) {
+                    index = 426;
+                }
+                int color = frequencyDomain.getColor(index);
+                image.setPixel(y, width - x - 1, color); // Set pixel color in the bitmap
+            }
+        }
+
+        // Now, you can use the bitmap in your ImageView
+        imageView.setImageBitmap(image);
+
+    }
+
+    public void onBtnDLClicked(View view) throws FileNotFoundException {
+
+        InputStream inputStream = getResources().openRawResource(R.raw.w1400bl10);
+
+        float[] audioData = WavFileReader.readWavFile(inputStream);
+
+        MelSpectrogram melSpectrogram = new MelSpectrogram();
+        float[][] melspec = melSpectrogram.process(audioData);
+
         int width = melspec.length; // Width of the image
         int height = melspec[0].length; // Height of the image
 

@@ -139,10 +139,7 @@ public class Recorder {
         return isPaused;
     }
 
-    public void saveAudioToFile(ShortValues yData) {
-        String timeStamp = new SimpleDateFormat("yyyy_MM_dd_HH_mm", Locale.getDefault()).format(new Date());
-        String fileName = timeStamp + ".wav";
-
+    public File saveAudioToFile(String fileName, ShortValues yData) {
         // Directory for StethoscopeData folder
         File documentsDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
         File stethoscopeDataDirectory = new File(documentsDirectory, "StethoscopeData");
@@ -151,7 +148,6 @@ public class Recorder {
         if (!stethoscopeDataDirectory.exists()) {
             if (!stethoscopeDataDirectory.mkdirs()) {
                 Log.e("Recorder", "Failed to create directory: " + stethoscopeDataDirectory.getAbsolutePath());
-                return;
             }
         }
 
@@ -182,6 +178,7 @@ public class Recorder {
                 }
             }
         }
+        return file;
     }
 
     private void writeWavHeader(FileOutputStream fos, int audioDataLength) throws IOException {
