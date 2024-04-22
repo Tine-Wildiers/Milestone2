@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onBtnDLClicked(View view) {
-        double[] audioData = WavFileReader.readWavFile(this);
+        float[] audioData = WavFileReader.readWavFile(this);
 
         MelSpectrogram melSpectrogram = new MelSpectrogram();
         melSpectrogram.process(audioData);

@@ -12,14 +12,11 @@ public class MelSpectrogram {
     FFT fft = new FFT();
 
 
-    public double[][] process(double[] y) {
+    public double[][] process(float[] y) {
         // 1 librosa.load = y
 
         // 2 librosa.feature.melspectrogram
-        // 2.1 spectrogram
-        // 2.2 mel_basis
-        // 2.3 melspec = melfilters x spectrogram
-        double [][] melSpectrogram = melSpectrogram(y);
+        float [][] melSpectrogram = melSpectrogram(y);
 
         // 3 librosa.power_to_db
         final double[][] specTroGram = powerToDb(melSpectrogram);
@@ -29,11 +26,15 @@ public class MelSpectrogram {
 
     //mel spectrogram, librosa
     //1: Start by computing filters and stft
-    private double[][] melSpectrogram(double[] y){
+    private float[][] melSpectrogram(float[] y){
+        // 2.1 spectrogram
+        // 2.2 mel_basis
+        // 2.3 melspec = melfilters x spectrogram
 
         float[][] melBasis = melFilter(); //256x1025  = deze is juist
-        double[][] spectro = stftMagSpec(y); //1025x403
-        double[][] melS = new double[melBasis.length][spectro[0].length]; //256x403
+        float[][] spectro = stftMagSpec(y); //1025x403  = deze is juist buiten de randwaarden (maar boeit ni?)
+        float[][] melS = new float[melBasis.length][spectro[0].length]; //256x403
+
         for (int i = 0; i < melBasis.length; i++){
             for (int j = 0; j < spectro[0].length; j++){
                 for (int k = 0; k < melBasis[0].length; k++){
@@ -41,16 +42,18 @@ public class MelSpectrogram {
                 }
             }
         }
-        return melS; //Dit komt overeen met wat python uitkomt voor S
+
+        //TODO: inlezen in Parallel Colt voor optimalisatie van deze berekening.
+        return melS; //Klopt
     }
 
 
     //stft, librosa
-    private double[][] stftMagSpec(double[] y){
+    private float[][] stftMagSpec(float[] y){
         //Short-time Fourier transform (STFT)
-        final double[] fftwin = getWindow(); //Hann Window
+        final float[] fftwin = getWindow(); //Hann Window - zelfde als in python
 
-        double[] ypad = new double[n_fft+y.length];
+        float[] ypad = new float[n_fft+y.length];
         for (int i = 0; i < n_fft/2; i++){
             ypad[(n_fft/2)-i-1] = y[i+1];
             ypad[(n_fft/2)+y.length+i] = y[y.length-2-i];
@@ -60,14 +63,14 @@ public class MelSpectrogram {
         }
 
 
-        final double[][] frame = yFrame(ypad);
-        double[][] fftmagSpec = new double[1+n_fft/2][frame[0].length];
-        double[] fftFrame = new double[n_fft];
+        final float[][] frame = yFrame(ypad);
+        float[][] fftmagSpec = new float[1+n_fft/2][frame[0].length];
+        float[] fftFrame = new float[n_fft];
         for (int k = 0; k < frame[0].length; k++){
             for (int l =0; l < n_fft; l++){
                 fftFrame[l] = fftwin[l]*frame[l][k];
             }
-            double[] magSpec = magSpectrogram(fftFrame);
+            float[] magSpec = magSpectrogram(fftFrame);
             for (int i =0; i < 1+n_fft/2; i++){
                 fftmagSpec[i][k] = magSpec[i];
             }
@@ -75,32 +78,32 @@ public class MelSpectrogram {
         return fftmagSpec;
     }
 
-    private double[] magSpectrogram(double[] frame){
-        double[] magSpec = new double[frame.length];
+    private float[] magSpectrogram(float[] frame){
+        float[] magSpec = new float[frame.length];
         fft.process(frame);
         for (int m = 0; m < frame.length; m++) {
-            magSpec[m] = fft.real[m] * fft.real[m] + fft.imag[m] * fft.imag[m];
+            magSpec[m] = (float) (fft.real[m] * fft.real[m] + fft.imag[m] * fft.imag[m]);
         }
         return magSpec;
     }
 
 
     //get hann window, librosa
-    private double[] getWindow(){
+    private float[] getWindow(){
         //Return a Hann window for even n_fft.
         //The Hann window is a taper formed by using a raised cosine or sine-squared
         //with ends that touch zero.
-        double[] win = new double[n_fft];
+        float[] win = new float[n_fft];
         for (int i = 0; i < n_fft; i++){
-            win[i] = 0.5 - 0.5 * Math.cos(2.0*Math.PI*i/n_fft);
+            win[i] = (float) (0.5 - 0.5 * Math.cos(2*Math.PI*i/n_fft));
         }
         return win;
     }
 
     //frame, librosa
-    private double[][] yFrame(double[] ypad){
+    private float[][] yFrame(float[] ypad){
         final int n_frames = 1 + (ypad.length - n_fft) / hop_length;
-        double[][] winFrames = new double[n_fft][n_frames];
+        float[][] winFrames = new float[n_fft][n_frames];
         for (int i = 0; i < n_fft; i++){
             for (int j = 0; j < n_frames; j++){
                 winFrames[i][j] = ypad[j*hop_length+i];
@@ -109,7 +112,7 @@ public class MelSpectrogram {
         return winFrames;
     }
 
-    private double[][] powerToDb(double[][] melS){
+    private double[][] powerToDb(float[][] melS){
         //Convert a power spectrogram (amplitude squared) to decibel (dB) units
         //  This computes the scaling ``10 * log10(S / ref)`` in a numerically
         //  stable way.
@@ -137,24 +140,6 @@ public class MelSpectrogram {
             }
         }
         return log_spec;
-    }
-
-    private double[][] dctFilter(int n_filters, int n_input){
-        //Discrete cosine transform (DCT type-III) basis.
-        double[][] basis = new double[n_filters][n_input];
-        double[] samples = new double[n_input];
-        for (int i = 0; i < n_input; i++){
-            samples[i] = (1 + 2*i) * Math.PI/(2.0*(n_input));
-        }
-        for (int j = 0; j < n_input; j++){
-            basis[0][j] = 1.0/Math.sqrt(n_input);
-        }
-        for (int i = 1; i < n_filters; i++){
-            for (int j = 0; j < n_input; j++){
-                basis[i][j] = Math.cos(i*samples[j]) * Math.sqrt(2.0/(n_input));
-            }
-        }
-        return basis;
     }
 
 
@@ -239,26 +224,6 @@ public class MelSpectrogram {
             mels[i] = melFLow[0] + (melFHigh[0] - melFLow[0]) / (numMels-1) * i;
         }
         return melToFreq(mels);
-    }
-
-
-    //mel to hz, htk, librosa
-    private double[] melToFreqS(double[] mels) {
-        double[] freqs = new double[mels.length];
-        for (int i = 0; i < mels.length; i++) {
-            freqs[i] = 700.0 * (Math.pow(10, mels[i]/2595.0) - 1.0);
-        }
-        return freqs;
-    }
-
-
-    // hz to mel, htk, librosa
-    protected double[] freqToMelS(double[] freqs) {
-        double[] mels = new double[freqs.length];
-        for (int i = 0; i < freqs.length; i++){
-            mels[i] = 2595.0 * log10(1.0 + freqs[i]/700.0);
-        }
-        return mels;
     }
 
     //mel to hz, Slaney, librosa

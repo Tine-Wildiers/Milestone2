@@ -1,14 +1,14 @@
 package com.example.milestone2;
 
 public class FFT {
-    double[] real;
-    double[] imag;
+    float[] real;
+    float[] imag;
 
-    public void process(double[] signal) {
+    public void process(float[] signal) {
         final int numPoints = signal.length;
         // initialize real & imag array
         real = signal;
-        imag = new double[numPoints];
+        imag = new float[numPoints];
 
         // perform FFT using the real & imag array
         final double pi = Math.PI;
@@ -21,8 +21,8 @@ public class FFT {
         for (int i = 1; i < numPoints - 2; i++) {
             if (i < j) {
                 // swap
-                double tempReal = real[j];
-                double tempImag = imag[j];
+                float tempReal = real[j];
+                float tempImag = imag[j];
                 real[j] = real[i];
                 imag[j] = imag[i];
                 real[i] = tempReal;
