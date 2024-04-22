@@ -12,20 +12,18 @@ public class MelSpectrogram {
     FFT fft = new FFT();
 
 
-    public double[][] process(float[] y) {
+    public float[][] process(float[] y) {
         // 1 librosa.load = y
 
         // 2 librosa.feature.melspectrogram
-        float [][] melSpectrogram = melSpectrogram(y);
+        float [][] melSpectrogram = melSpectrogram(y); //Klopt
 
         // 3 librosa.power_to_db
-        final double[][] specTroGram = powerToDb(melSpectrogram);
+        final float[][] specTroGram = powerToDb(melSpectrogram, 100); //Klopt
 
         return specTroGram;
     }
 
-    //mel spectrogram, librosa
-    //1: Start by computing filters and stft
     private float[][] melSpectrogram(float[] y){
         // 2.1 spectrogram
         // 2.2 mel_basis
@@ -47,8 +45,6 @@ public class MelSpectrogram {
         return melS; //Klopt
     }
 
-
-    //stft, librosa
     private float[][] stftMagSpec(float[] y){
         //Short-time Fourier transform (STFT)
         final float[] fftwin = getWindow(); //Hann Window - zelfde als in python
@@ -87,8 +83,6 @@ public class MelSpectrogram {
         return magSpec;
     }
 
-
-    //get hann window, librosa
     private float[] getWindow(){
         //Return a Hann window for even n_fft.
         //The Hann window is a taper formed by using a raised cosine or sine-squared
@@ -100,7 +94,6 @@ public class MelSpectrogram {
         return win;
     }
 
-    //frame, librosa
     private float[][] yFrame(float[] ypad){
         final int n_frames = 1 + (ypad.length - n_fft) / hop_length;
         float[][] winFrames = new float[n_fft][n_frames];
@@ -112,7 +105,44 @@ public class MelSpectrogram {
         return winFrames;
     }
 
-    private double[][] powerToDb(float[][] melS){
+    private float[][] powerToDb(float[][] S, float topDb){
+        double amin = 1e-10;
+        int numRows = S.length;
+        int numCols = S[0].length;
+        float[][] result = new float[numRows][numCols];
+
+        double max = Float.NEGATIVE_INFINITY;
+
+        int indi = 0;
+        int indj = 0;
+        for (int i = 0; i <= S.length -1; i++) {
+            for (int j = 0; j <= S[i].length - 10; j++) {
+                //TODO: deze manuele -10 uitzoeken, waarom zijn de laatste 10 colums brol?
+                if (S[i][j] > max) {
+                    indi = i;
+                    indj = j;
+                    max = S[i][j];
+                }
+            }
+        }
+
+        double ref_value = max;
+
+        for (int i = 0; i < numRows; i++) {
+            for (int j = 0; j < numCols; j++) {
+                float mag = (float) Math.max(amin, S[i][j]);
+
+                float logSpec = (float) (10.0 * Math.log10(mag) - 10.0 * Math.log10(ref_value));
+
+
+                //logSpec = (float) Math.max(logSpec, ref_value - topDb);
+                result[i][j] = logSpec;
+            }
+        }
+        return result;
+    }
+
+    private double[][] powerToDbOld(float[][] melS){
         //Convert a power spectrogram (amplitude squared) to decibel (dB) units
         //  This computes the scaling ``10 * log10(S / ref)`` in a numerically
         //  stable way.
@@ -142,8 +172,6 @@ public class MelSpectrogram {
         return log_spec;
     }
 
-
-    //mel, librosa
     private float[][] melFilter(){
         //Create a Filterbank matrix to combine FFT bins into Mel-frequency bins.
         // Center freqs of each FFT bin
@@ -200,7 +228,6 @@ public class MelSpectrogram {
         return floatArray;
     }
 
-    //fft frequencies, librosa
     private double[] fftFreq() {
         //Alternative implementation of np.fft.fftfreqs
         double[] freqs = new double[1+n_fft/2];
@@ -210,7 +237,6 @@ public class MelSpectrogram {
         return freqs;
     }
 
-    //mel frequencies, librosa
     private double[] melFreq(int numMels) {
         //'Center freqs' of mel bands - uniformly spaced between limits
         double[] LowFFreq = new double[1];
@@ -226,7 +252,6 @@ public class MelSpectrogram {
         return melToFreq(mels);
     }
 
-    //mel to hz, Slaney, librosa
     private double[] melToFreq(double[] mels) {
         // Fill in the linear scale
         final double f_min = 0.0;
@@ -248,14 +273,10 @@ public class MelSpectrogram {
         return freqs;
     }
 
-
-    // hz to mel, Slaney, librosa
     protected double[] freqToMel(double[] freqs) {
         final double f_min = 0.0;
         final double f_sp = 200.0 / 3;
         double[] mels = new double[freqs.length];
-
-        // Fill in the log-scale part
 
         final double min_log_hz = 1000.0;                         // beginning of log region (Hz)
         final double min_log_mel = (min_log_hz - f_min) / f_sp ;  // # same (Mels)
