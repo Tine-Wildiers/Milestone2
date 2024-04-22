@@ -144,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
         int height = melspec[0].length; // Height of the image
 
         // Create a blank bitmap with the specified width and height
-        Bitmap image = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Bitmap image = Bitmap.createBitmap(height, width, Bitmap.Config.ARGB_8888);
 
         // Loop through each pixel in the float array and set the corresponding pixel in the bitmap
         for (int x = 0; x < width; x++) {
@@ -160,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
                     index = 426;
                 }
                 int color = frequencyDomain.getColor(index);
-                image.setPixel(x, y, color); // Set pixel color in the bitmap
+                image.setPixel(y, width - x - 1, color); // Set pixel color in the bitmap
             }
         }
 
