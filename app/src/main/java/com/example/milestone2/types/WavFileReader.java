@@ -40,6 +40,12 @@ public class WavFileReader {
                     waveform[i] = (double) (sample - 128) / Byte.MAX_VALUE;
                 }
             }
+            float[] fltWaveform = new float[waveform.length];
+
+            // Converting double[] to float[]
+            for (int i = 0; i < waveform.length; i++) {
+                fltWaveform[i] = (float) waveform[i];
+            }
 
             return waveform;
         } catch (Exception e) {

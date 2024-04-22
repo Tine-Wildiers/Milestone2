@@ -11,6 +11,7 @@ import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Locale;
 
 public class ModelHandler extends AppCompatActivity {
     int imageSize = 224;
@@ -61,7 +62,7 @@ public class ModelHandler extends AppCompatActivity {
     private void postProcess(TensorBuffer outputFeature0){
         String[] classes = {"0", "1", "2", "3"};
         float[] confidences = outputFeature0.getFloatArray();
-        // find the index of the class with the biggest confidence.
+
         int maxPos = 0;
         float maxConfidence = 0;
         for(int i = 0; i < confidences.length; i++){
@@ -73,11 +74,10 @@ public class ModelHandler extends AppCompatActivity {
 
         result.setText(classes[maxPos]);
 
-        String s = "";
-        s += String.format("%s: %.1f%%\n", classes[0], confidences[0] * 100);
-        s += String.format("%s: %.1f%%\n", classes[1], confidences[1] * 100);
-        s += String.format("%s: %.1f%%\n", classes[2], confidences[2] * 100);
-        s += String.format("%s: %.1f%%\n", classes[3], confidences[3] * 100);
-        confidence.setText(s);
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < classes.length; i++) {
+            sb.append(String.format(Locale.US, "%s: %.1f%%\n", classes[i], confidences[i] * 100));
+        }
+        confidence.setText(sb.toString());
     }
 }

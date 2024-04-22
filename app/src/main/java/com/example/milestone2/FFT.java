@@ -54,8 +54,8 @@ public class FFT {
                 for (int butterfly = subDFT - 1; butterfly <= numPoints - 1; butterfly += LE) {
                     int ip = butterfly + LE2;
                     // butterfly calculation
-                    double tempReal = (double) (real[ip] * UR - imag[ip] * UI);
-                    double tempImag = (double) (real[ip] * UI + imag[ip] * UR);
+                    float tempReal = (float) (real[ip] * UR - imag[ip] * UI);
+                    float tempImag = (float) (real[ip] * UI + imag[ip] * UR);
                     real[ip] = real[butterfly] - tempReal;
                     imag[ip] = imag[butterfly] - tempImag;
                     real[butterfly] += tempReal;

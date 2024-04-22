@@ -1,63 +1,37 @@
 package com.example.milestone2;
 
 public class MelSpectrogram {
-
-    private final static int       n_mfcc       		= 20;
-    private final static double    fMin                 = 0.0;
+    private final static float    fMin                 = 0.0F;
     private final static int       n_fft                = 2048;
     private final static int       hop_length           = 512;
     private final static int	   n_mels               = 256;
 
-    private final static double    sampleRate           = 44100;
-    private final static double    fMax                 = sampleRate/2.0;
+    private final static float    sampleRate           = 44100;
+    private final static float    fMax                 = (float) (sampleRate/2.0);
 
     FFT fft = new FFT();
 
 
-    public float[] process(double[] doubleInputBuffer) {
-        final double[][] mfccResult = dctMfcc(doubleInputBuffer);
-        return finalshape(mfccResult);
+    public double[][] process(double[] y) {
+        // 1 librosa.load = y
+
+        // 2 librosa.feature.melspectrogram
+        // 2.1 spectrogram
+        // 2.2 mel_basis
+        // 2.3 melspec = melfilters x spectrogram
+        double [][] melSpectrogram = melSpectrogram(y);
+
+        // 3 librosa.power_to_db
+        final double[][] specTroGram = powerToDb(melSpectrogram);
+
+        return specTroGram;
     }
-
-    //MFCC into 1d
-    private float[] finalshape(double[][] mfccSpecTro){
-        float[] finalMfcc = new float[mfccSpecTro[0].length * mfccSpecTro.length];
-        int k = 0;
-        for (int i = 0; i < mfccSpecTro[0].length; i++){
-            for (int j = 0; j < mfccSpecTro.length; j++){
-                finalMfcc[k] = (float) mfccSpecTro[j][i];
-                k = k+1;
-            }
-        }
-        return finalMfcc;
-    }
-
-    //DCT to mfcc, librosa
-    private double[][] dctMfcc(double[] y){
-        // First calculate the melSpectrogram, then transfer it to deciBel
-        final double[][] specTroGram = powerToDb(melSpectrogram(y));
-
-        // Create melspectrogram filters
-        final double[][] dctBasis = dctFilter(n_mfcc, n_mels);
-
-        // Apply filters?
-        double[][] mfccSpecTro = new double[n_mfcc][specTroGram[0].length];
-        for (int i = 0; i < n_mfcc; i++){
-            for (int j = 0; j < specTroGram[0].length; j++){
-                for (int k = 0; k < specTroGram.length; k++){
-                    mfccSpecTro[i][j] += dctBasis[i][k]*specTroGram[k][j];
-                }
-            }
-        }
-        return mfccSpecTro;
-    }
-
 
     //mel spectrogram, librosa
     //1: Start by computing filters and stft
     private double[][] melSpectrogram(double[] y){
 
-        double[][] melBasis = melFilter(); //256x1025
+        float[][] melBasis = melFilter(); //256x1025  = deze is juist
         double[][] spectro = stftMagSpec(y); //1025x403
         double[][] melS = new double[melBasis.length][spectro[0].length]; //256x403
         for (int i = 0; i < melBasis.length; i++){
@@ -185,7 +159,7 @@ public class MelSpectrogram {
 
 
     //mel, librosa
-    private double[][] melFilter(){
+    private float[][] melFilter(){
         //Create a Filterbank matrix to combine FFT bins into Mel-frequency bins.
         // Center freqs of each FFT bin
         final double[] fftFreqs = fftFreq();
@@ -228,7 +202,17 @@ public class MelSpectrogram {
                 weights[i][j] *= enorm[i];
             }
         }
-        return weights;
+
+        int rows = weights.length;
+        int cols = weights[0].length;
+        float[][] floatArray = new float[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                floatArray[i][j] = (float) weights[i][j];
+            }
+        }
+
+        return floatArray;
     }
 
     //fft frequencies, librosa

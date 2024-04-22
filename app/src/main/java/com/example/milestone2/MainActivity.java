@@ -74,8 +74,6 @@ public class MainActivity extends AppCompatActivity {
     ImageView imageView;
     Button picture;
     int imageSize = 224;
-
-    //TODO: Handler start enkel als op startknop is geklikt
     Handler handler = new Handler();
     Runnable saveScatterChartRunnable = new Runnable() {
         @Override
@@ -90,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        InputStream inputStream = getResources().openRawResource(R.raw.magma_colors_argb);
+        InputStream inputStream = getResources().openRawResource(R.raw.magma_distinct);
         CSVFile csvFile = new CSVFile(inputStream);
         List palette = csvFile.read();
         frequencyDomain.setColorPalette(palette);
@@ -107,9 +105,6 @@ public class MainActivity extends AppCompatActivity {
         picture = findViewById(R.id.button);
         modelHandler = new ModelHandler(result, confidence, imageView, picture);
 
-        handler.postDelayed(saveScatterChartRunnable, 5000); // Start the repeating task to save ScatterChart every 5 seconds
-
-
         //frequencyChart = findViewById(R.id.frequencychart);
         //setupFrequencyGraph();
     }
@@ -125,9 +120,11 @@ public class MainActivity extends AppCompatActivity {
                 dataProvider.tryStart();
             }
         }
+        handler.postDelayed(saveScatterChartRunnable, 5000); // Start the repeating task to save ScatterChart every 5 seconds
     }
 
     public void onBtnStopClicked(View view){
+        handler.removeCallbacksAndMessages(null);
         dataProvider.setPaused(true);
         dataProvider.tryStop();
         dataProvider.saveAudioToFile(audioDSy);
@@ -141,12 +138,12 @@ public class MainActivity extends AppCompatActivity {
         MelSpectrogram melSpectrogram = new MelSpectrogram();
         melSpectrogram.process(audioData);
 
-        TextView text = (TextView) findViewById(R.id.dlOutput);
+        TextView text = findViewById(R.id.dlOutput);
         text.setText("Something Else");
     }
 
     public void onBtnTestModelClicked(View view){
-        InputStream inputStream = getResources().openRawResource(R.raw.lr22);
+        InputStream inputStream = getResources().openRawResource(R.raw.bl10);
 
         Bitmap image = BitmapFactory.decodeStream(inputStream);
         int dimension = Math.min(image.getWidth(), image.getHeight());
