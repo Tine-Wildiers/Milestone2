@@ -46,12 +46,6 @@
             android:layout_width="716dp"
             android:layout_height="212dp" />
 
-        <TextView
-            android:id="@+id/dlOutput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Hello World" />
-
         <Button
             android:id="@+id/dlbutton"
             android:layout_width="match_parent"

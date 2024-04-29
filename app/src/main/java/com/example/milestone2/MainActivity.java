@@ -1,5 +1,7 @@
 package com.example.milestone2;
 
+import static android.content.ContentValues.TAG;
+
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -64,12 +66,7 @@ public class MainActivity extends AppCompatActivity {
     private int slowDown = 0;
 
     private final DoubleValues fftData = new DoubleValues();
-    private final int fftSize = 1024;
-
-    //private final LongValues audioDSx = new LongValues(dataProvider.getBufferSize());
     private final ShortValues audioDSy = new ShortValues(dataProvider.getBufferSize());
-    private LineChart frequencyChart;
-    Entry[] frequencyPlot = new Entry[fftSize];
     private ModelHandler modelHandler;
 
     TextView result, confidence;
@@ -90,10 +87,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        InputStream inputStream = getResources().openRawResource(R.raw.magma_distinct);
-        CSVFile csvFile = new CSVFile(inputStream);
-        List palette = csvFile.read();
-        frequencyDomain.setColorPalette(palette);
+        CSVFile csvFile2 = new CSVFile(getResources().openRawResource(R.raw.rgb_values));
+        frequencyDomain.setRGBPalette(csvFile2.readRGB());
 
         timeDomain.setTimeChart(findViewById(R.id.timechart));
         frequencyDomain.setSpectrogramChart(findViewById(R.id.scatterchart));
@@ -106,9 +101,6 @@ public class MainActivity extends AppCompatActivity {
         imageView = findViewById(R.id.imageView);
         picture = findViewById(R.id.button);
         modelHandler = new ModelHandler(result, confidence, imageView, picture);
-
-        //frequencyChart = findViewById(R.id.frequencychart);
-        //setupFrequencyGraph();
     }
 
     public void onBtnStartClicked(View view){
@@ -129,89 +121,88 @@ public class MainActivity extends AppCompatActivity {
         handler.removeCallbacksAndMessages(null);
         dataProvider.setPaused(true);
         dataProvider.tryStop();
-        String timeStamp = new SimpleDateFormat("yyyy_MM_dd_HH_mm", Locale.getDefault()).format(new Date());
-        String fileName = timeStamp + ".wav";
-        File file = dataProvider.saveAudioToFile(fileName, audioDSy);
         audioDSy.clear();
         dataProvider.resetAudioRecord();
 
-        //InputStream inputStream = getResources().openRawResource(R.raw.w1400bl10);
+        String timeStamp = new SimpleDateFormat("yyyy_MM_dd_HH_mm", Locale.getDefault()).format(new Date());
+        String fileName = timeStamp + ".wav";
+        File file = dataProvider.saveAudioToFile(fileName, audioDSy);
+
         InputStream inputStream = new FileInputStream(file);
 
+        preProcessImage(inputStream);
+    }
 
+    public void onBtnDLClicked(View view) throws FileNotFoundException {
+        InputStream inputStream = getResources().openRawResource(R.raw.w1400bl10);
+        preProcessImage(inputStream);
+    }
+
+    public void preProcessImage(InputStream inputStream){
         float[] audioData = WavFileReader.readWavFile(inputStream);
 
         MelSpectrogram melSpectrogram = new MelSpectrogram();
         float[][] melspec = melSpectrogram.process(audioData);
 
-        int width = melspec.length; // Width of the image
-        int height = melspec[0].length; // Height of the image
+        int height = melspec.length; // Width of the image
+        int width = melspec[0].length; // Height of the image
+
+        int[] values = {195, 193, 109, 71, 53, 43, 35, 30, 27, 24, 21, 19, 18, 16, 15, 14, 14, 12, 12, 11, 11, 10, 10, 9, 9, 8, 8, 8, 8, 7, 7, 7, 7, 6, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+
+        int sum = 0;
+        for (int num : values) {
+            sum += num;
+        }
 
         // Create a blank bitmap with the specified width and height
-        Bitmap image = Bitmap.createBitmap(height, width, Bitmap.Config.ARGB_8888);
+        Bitmap image = Bitmap.createBitmap(width, sum, Bitmap.Config.ARGB_8888);
+
+        int bigindex;
 
         // Loop through each pixel in the float array and set the corresponding pixel in the bitmap
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                // Assuming the values in floatArray are in the range [0, 1]
-                //int pixelValue = (int) ((melspec[x][y]+100)/100 * 255); // Scale float value to [0, 255]
-                //int color = Color.rgb(pixelValue, pixelValue, pixelValue); // Create grayscale color
+        for (int y = 0; y < width; y++) {
+            bigindex = sum-1;
+            for (int x = 0; x < height; x++) {
+                //TODO: deze berekening correcter maken
                 int index = (int) (melspec[x][y]+100)* frequencyDomain.getColorMapperSize()/100;
-                //TODO: deze capping beter instellen
-                if(index<0){
-                    index = 0;
-                } else if (index>426) {
-                    index = 426;
+
+                int color = frequencyDomain.getRGBColor(index);
+
+                for(int z = 0; z < values[x]; z++){
+                    image.setPixel(y, bigindex, color);// Set pixel color in the bitmap
+                    if (bigindex == 0) {
+                        // Log the current value of bigIndex
+                        Log.d(TAG, "bigIndex is low. Value: " + bigindex);
+                    }
+                    bigindex -= 1;
                 }
-                int color = frequencyDomain.getColor(index);
-                image.setPixel(y, width - x - 1, color); // Set pixel color in the bitmap
             }
         }
+
+        image = scaleBitmap(image);
 
         // Now, you can use the bitmap in your ImageView
         imageView.setImageBitmap(image);
 
+        int dimension = Math.min(image.getWidth(), image.getHeight());
+        image = ThumbnailUtils.extractThumbnail(image, dimension, dimension);
+
+        image = Bitmap.createScaledBitmap(image, imageSize, imageSize, false);
+        try {
+            modelHandler.classifySound(image, MobileModelV2.newInstance(getApplicationContext()));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public void onBtnDLClicked(View view) throws FileNotFoundException {
+    public Bitmap scaleBitmap(Bitmap image){
+        int originalWidth = image.getWidth();
+        int originalHeight = image.getHeight();
 
-        InputStream inputStream = getResources().openRawResource(R.raw.w1400bl10);
+        // Create a new scaled bitmap
+        Bitmap stretchedBitmap = Bitmap.createScaledBitmap(image, 1980, originalHeight, true);
 
-        float[] audioData = WavFileReader.readWavFile(inputStream);
-
-        MelSpectrogram melSpectrogram = new MelSpectrogram();
-        float[][] melspec = melSpectrogram.process(audioData);
-
-        int width = melspec.length; // Width of the image
-        int height = melspec[0].length; // Height of the image
-
-        // Create a blank bitmap with the specified width and height
-        Bitmap image = Bitmap.createBitmap(height, width, Bitmap.Config.ARGB_8888);
-
-        // Loop through each pixel in the float array and set the corresponding pixel in the bitmap
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                // Assuming the values in floatArray are in the range [0, 1]
-                //int pixelValue = (int) ((melspec[x][y]+100)/100 * 255); // Scale float value to [0, 255]
-                //int color = Color.rgb(pixelValue, pixelValue, pixelValue); // Create grayscale color
-                int index = (int) (melspec[x][y]+100)* frequencyDomain.getColorMapperSize()/100;
-                //TODO: deze capping beter instellen
-                if(index<0){
-                    index = 0;
-                } else if (index>426) {
-                    index = 426;
-                }
-                int color = frequencyDomain.getColor(index);
-                image.setPixel(y, width - x - 1, color); // Set pixel color in the bitmap
-            }
-        }
-
-// Now, you can use the bitmap in your ImageView
-        imageView.setImageBitmap(image);
-
-
-        TextView text = findViewById(R.id.dlOutput);
-        text.setText("Something Else");
+        return stretchedBitmap;
     }
 
     public void onBtnTestModelClicked(View view){
@@ -286,65 +277,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         return downScaledArray;
-    }
-
-    private void setupFrequencyGraph(){
-        /*
-
-        Deze lines terug toevoegen aan activity_main.xml
-        <com.github.mikephil.charting.charts.LineChart
-        android:id="@+id/frequencychart"
-        android:layout_width="968dp"
-        android:layout_height="79dp" />
-
-         */
-
-        for (int i = 0; i < fftSize; i++) {
-            frequencyPlot[i] = new Entry(i, 0);
-        }
-
-        Description description = new Description();
-        description.setEnabled(false);
-        frequencyChart.setDescription(description);
-        frequencyChart.getLegend().setEnabled(false);
-        frequencyChart.getAxisRight().setDrawLabels(false);
-
-        XAxis xAxisf = frequencyChart.getXAxis();
-        xAxisf.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxisf.setDrawGridLines(false);
-        xAxisf.setDrawGridLines(true);
-        xAxisf.setGridLineWidth(1f);
-        xAxisf.setGridColor(Color.GRAY);
-        xAxisf.setGranularity(1f);
-        xAxisf.setGranularityEnabled(true);
-
-        YAxis yAxisf = frequencyChart.getAxisLeft();
-        yAxisf.setAxisMinimum(-30);
-        yAxisf.setAxisMaximum(+100);
-        yAxisf.setAxisLineWidth(2f);
-        yAxisf.setAxisLineColor(Color.BLACK);
-        yAxisf.setDrawGridLines(false);
-
-        YAxis rightYAxisf = frequencyChart.getAxisRight();
-        rightYAxisf.setDrawGridLines(false);
-    }
-
-    protected void updateFrequencyGraph(){
-        for (int i = 0; i < fftSize; i++) {
-            frequencyPlot[i].setY((float) fftData.get(i));
-        }
-
-        LineDataSet dataSet1 = new LineDataSet(Arrays.asList(frequencyPlot), "FrequencyWave");
-        dataSet1.setColor(Color.TRANSPARENT);
-        dataSet1.setLineWidth(0f);
-        dataSet1.setDrawCircles(true);
-        dataSet1.setDrawCircleHole(false);
-        dataSet1.setCircleColor(Color.BLUE);
-        dataSet1.setCircleRadius(1f);
-        LineData lineData = new LineData(dataSet1);
-
-        frequencyChart.setData(lineData);
-        frequencyChart.invalidate();
     }
 
     private void saveScatterChart() {

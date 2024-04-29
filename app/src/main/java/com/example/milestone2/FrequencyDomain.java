@@ -38,10 +38,9 @@ public class FrequencyDomain {
     MyScatterDataSet spectrogramDS;
     List<Integer> colors = new ArrayList<>();
     List<Integer> colorMapper = new ArrayList<Integer>();
+    List<Integer> rgbMapper = new ArrayList<Integer>();
     int index;
     int colorMapperSize;
-    String argbVal;
-    int alpha, red, green, blue;
 
     public FrequencyDomain() {
 
@@ -51,14 +50,13 @@ public class FrequencyDomain {
         this.spectrogramChart = spectrogramChart;
     }
 
-    public void setColorPalette(List<String> colorPalette){
+    public void setRGBPalette(List<List<Float>> colorPalette){
         colorMapperSize = colorPalette.size();
-        for (String argbVal : colorPalette) {
-            int alpha = Integer.parseInt(argbVal.substring(0, 2), 16);
-            int red = Integer.parseInt(argbVal.substring(2, 4), 16);
-            int green = Integer.parseInt(argbVal.substring(4, 6), 16);
-            int blue = Integer.parseInt(argbVal.substring(6, 8), 16);
-            colorMapper.add(Color.argb(alpha, red, green, blue));
+        for (List<Float> row : colorPalette) {
+            float red = row.get(0);
+            float green = row.get(1);
+            float blue = row.get(2);
+            rgbMapper.add(Color.argb(1, red, green, blue));
         }
     }
 
@@ -75,7 +73,7 @@ public class FrequencyDomain {
                 //int color = Color.HSVToColor(new float[]{(float) (i * j * 120) /(spectogramXRes*spectogramYRes), 1f, 1f});
                 double calcVal = ( (double) (i * j) /(spectogramXRes*spectogramYRes) * colorMapperSize);
                 index = Math.min((int) calcVal, colorMapperSize - 1);
-                int color = colorMapper.get(index);
+                int color = getRGBColor(index);
                 colors.add(color);
                 entries.add(new Entry(i, j));
             }
@@ -97,12 +95,11 @@ public class FrequencyDomain {
         for (int i = 0; i < spectogramYRes; i++) {
 
             // --- old version ---
-            int color = Color.HSVToColor(new float[]{(float) interpolateHue(downScaledArray[i]), 1f, 1f});
+            //int color = Color.HSVToColor(new float[]{(float) interpolateHue(downScaledArray[i]), 1f, 1f});
 
             // --- new version ---
-            //index = Math.min((int) ((downScaledArray[i] +50) * colorMapperSize / 100f), colorMapperSize - 1);
-            //int color = colorMapper.get(index);
-            //TODO: deze manier proberen implementeren in interpolateHue methode achtig iets ipv die csv te lezen
+            index = Math.min((int) ((downScaledArray[i] +50) * colorMapperSize / 100f), colorMapperSize - 1);
+            int color = rgbMapper.get(index);
 
             colors.add(color);
         }
@@ -124,8 +121,13 @@ public class FrequencyDomain {
         return 240f * (1f - normalizedY);
     }
 
-    public int getColor(int index){
-        return colorMapper.get(index);
+    public int getRGBColor(int index){
+        if(index<0){
+            index = 0;
+        } else if (index>=colorMapperSize) {
+            index = colorMapperSize-1;
+        }
+        return rgbMapper.get(index);
     }
 
     public int getColorMapperSize(){

@@ -39,4 +39,24 @@ public class CSVFile {
         }
         return resultList;
     }
+
+    public List<List<Float>> readRGB(){
+        String line;
+        String cvsSplitBy = ",";
+        List<List<Float>> data = new ArrayList<>();
+
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(cvsSplitBy);
+                List<Float> row = new ArrayList<>();
+                for (String value : values) {
+                    row.add(Float.parseFloat(value));
+                }
+                data.add(row);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return data;
+    }
 }
