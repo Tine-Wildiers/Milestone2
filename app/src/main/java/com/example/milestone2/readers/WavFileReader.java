@@ -1,4 +1,4 @@
-package com.example.milestone2.types;
+package com.example.milestone2.readers;
 
 import android.content.Context;
 import android.media.AudioFormat;
@@ -40,10 +40,13 @@ public class WavFileReader {
                     waveform[i] = (double) (sample - 128) / Byte.MAX_VALUE;
                 }
             }
-            float[] fltWaveform = new float[waveform.length];
+
+            //I noticed that for some reason, the method I use always has 3541 to much values that don't make sense. This is how I cut them off.
+            int size = waveform.length - 3541;
+            float[] fltWaveform = new float[size];
 
             // Converting double[] to float[]
-            for (int i = 0; i < waveform.length; i++) {
+            for (int i = 0; i < size; i++) {
                 fltWaveform[i] = (float) waveform[i];
             }
 

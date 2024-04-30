@@ -1,4 +1,4 @@
-package com.example.milestone2;
+package com.example.milestone2.helpers;
 
 import android.media.AudioFormat;
 import android.media.AudioRecord;

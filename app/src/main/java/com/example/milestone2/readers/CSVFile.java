@@ -1,4 +1,4 @@
-package com.example.milestone2.types;
+package com.example.milestone2.readers;
 
 import java.io.BufferedReader;
 import java.io.IOException;

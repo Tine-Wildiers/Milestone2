@@ -27,6 +27,7 @@ public class TimeDomain {
 
     public void setTimeChart(LineChart timeChart) {
         this.timeChart = timeChart;
+        setupTimeChart();
     }
 
     public void setupTimeChart(){
