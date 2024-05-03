@@ -69,14 +69,15 @@ public class TimeDomain {
         timeChart.getLegend().setEnabled(false);
         timeChart.getAxisRight().setDrawLabels(false);
         YAxis yAxis = timeChart.getAxisLeft();
-        yAxis.setAxisMinimum(-3000);
-        yAxis.setAxisMaximum(+3000);
+        yAxis.setAxisMinimum(-5000);
+        yAxis.setAxisMaximum(+5000);
         yAxis.setAxisLineWidth(2f);
         yAxis.setAxisLineColor(Color.BLACK);
         yAxis.setDrawGridLines(false);
 
         YAxis rightYAxis = timeChart.getAxisRight();
         rightYAxis.setDrawGridLines(false);
+        timeChart.invalidate();
     }
 
     protected void updateTimeGraph(){

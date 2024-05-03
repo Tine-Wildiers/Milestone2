@@ -159,6 +159,25 @@ public final class ShortValues {
         this.a = new short[0];
     }
 
+    public ShortValues[] splitIntoThree() {
+        int partSize = b / 3;
+        int remainder = b % 3;
+
+        ShortValues[] result = new ShortValues[3];
+
+        int startIndex = 0;
+        for (int i = 0; i < 3; i++) {
+            int currentPartSize = partSize + (i < remainder ? 1 : 0);
+            short[] partArray = new short[currentPartSize];
+            System.arraycopy(this.getItemsArray(), startIndex, partArray, 0, currentPartSize);
+            result[i] = new ShortValues(partArray);
+            startIndex += currentPartSize;
+        }
+
+        return result;
+    }
+
+
     public Class<Short> getValuesType() {
         return Short.class;
     }

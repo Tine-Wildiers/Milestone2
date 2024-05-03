@@ -20,7 +20,7 @@ public class FrequencyDomain {
         return spectogramYRes;
     }
 
-    private final int spectogramXRes = 30;
+    private final int spectogramXRes = 50;
     private final int spectogramYRes = 32;
     MyScatterDataSet spectrogramDS;
     List<Integer> colors = new ArrayList<>();

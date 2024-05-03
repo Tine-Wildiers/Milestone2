@@ -42,17 +42,71 @@ public class ModelHandler extends AppCompatActivity {
         this.context = context;
     }
 
-    public void classifySound(Bitmap image, MobileModelV2 model){
+    public float[] classifySound(Bitmap image, MobileModelV2 model){
         TensorBuffer inputFeature0 = preProcess(image);
 
         MobileModelV2.Outputs outputs = model.process(inputFeature0);
 
-        postProcess(outputs.getOutputFeature0AsTensorBuffer());
+        float[] confidences = postProcess(outputs.getOutputFeature0AsTensorBuffer());
 
         model.close();
+        return confidences;
     }
 
-    public void preProcessImage(InputStream inputStream){
+    public void preProcessImage(float[] audioData){
+        MelSpectrogram melSpectrogram = new MelSpectrogram();
+        float[][] melspec = melSpectrogram.process(audioData);
+
+        int height = melspec.length; // Width of the image
+        int width = melspec[0].length; // Height of the image
+
+        int[] values = {195, 193, 109, 71, 53, 43, 35, 30, 27, 24, 21, 19, 18, 16, 15, 14, 14, 12, 12, 11, 11, 10, 10, 9, 9, 8, 8, 8, 8, 7, 7, 7, 7, 6, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+
+        int sum = 0;
+        for (int num : values) {
+            sum += num;
+        }
+
+        // Create a blank bitmap with the specified width and height
+        Bitmap image = Bitmap.createBitmap(width, sum, Bitmap.Config.ARGB_8888);
+
+        int bigindex;
+
+        // Loop through each pixel in the float array and set the corresponding pixel in the bitmap
+        for (int y = 0; y < width; y++) {
+            bigindex = sum-1;
+            for (int x = 0; x < height; x++) {
+                //TODO: deze berekening correcter maken
+                int index = (int) (melspec[x][y]+100)* cM.getColorMapperSize()/100;
+
+                int color = cM.getColor(index);
+
+                for(int z = 0; z < values[x]; z++){
+                    image.setPixel(y, bigindex, color);// Set pixel color in the bitmap
+                    bigindex -= 1;
+                }
+            }
+        }
+
+        image = scaleBitmap(image);
+
+        int dimension = Math.min(image.getWidth(), image.getHeight());
+        image = ThumbnailUtils.extractThumbnail(image, dimension, dimension);
+
+        image = Bitmap.createScaledBitmap(image, imageSize, imageSize, true);
+
+        // Now, you can use the bitmap in your ImageView
+        imageView.setImageBitmap(image);
+
+
+        try {
+            classifySound(image, MobileModelV2.newInstance(context));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Measurement preProcessImage(InputStream inputStream){
         float[] audioData = WavFileReader.readWavFile(inputStream);
 
         MelSpectrogram melSpectrogram = new MelSpectrogram();
@@ -84,10 +138,6 @@ public class ModelHandler extends AppCompatActivity {
 
                 for(int z = 0; z < values[x]; z++){
                     image.setPixel(y, bigindex, color);// Set pixel color in the bitmap
-                    if (bigindex == 0) {
-                        // Log the current value of bigIndex
-                        Log.d(TAG, "bigIndex is low. Value: " + bigindex);
-                    }
                     bigindex -= 1;
                 }
             }
@@ -100,13 +150,13 @@ public class ModelHandler extends AppCompatActivity {
 
         image = Bitmap.createScaledBitmap(image, imageSize, imageSize, true);
 
-        // Now, you can use the bitmap in your ImageView
-        imageView.setImageBitmap(image);
         try {
-            classifySound(image, MobileModelV2.newInstance(context));
+            float[] confidences = classifySound(image, MobileModelV2.newInstance(context));
+            return new Measurement(image, confidences);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
     }
 
     public Bitmap scaleBitmap(Bitmap image){
@@ -139,7 +189,7 @@ public class ModelHandler extends AppCompatActivity {
         return inputFeature0;
     }
 
-    private void postProcess(TensorBuffer outputFeature0){
+    private float[] postProcess(TensorBuffer outputFeature0){
         String[] classes = {"0", "1", "2", "3"};
         float[] confidences = outputFeature0.getFloatArray();
 
@@ -159,5 +209,6 @@ public class ModelHandler extends AppCompatActivity {
             sb.append(String.format(Locale.US, "%s: %.1f%%\n", classes[i], confidences[i] * 100));
         }
         confidence.setText(sb.toString());
+        return confidences;
     }
 }

@@ -22,11 +22,8 @@ public class RealTimeGraphs {
     public TimeDomain timeDomain = new TimeDomain(sampleRate);
     public FrequencyDomain frequencyDomain = new FrequencyDomain();
     private int slowDown = 0;
-
-
     private final DoubleValues fftData = new DoubleValues();
     final ShortValues audioDSy = new ShortValues(dataProvider.getBufferSize());
-
 
     public RealTimeGraphs(ColorMapper cM, LineChart timeChart, ScatterChart spectrogram) {
         timeDomain.setTimeChart(timeChart);
@@ -90,6 +87,4 @@ public class RealTimeGraphs {
         }
         return downScaledArray;
     }
-
-
 }
