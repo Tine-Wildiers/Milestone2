@@ -1,5 +1,5 @@
 package com.example.milestone2;
-
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -8,6 +8,7 @@ import android.media.ThumbnailUtils;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.TextView;
@@ -159,14 +160,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onBtnNextLocClicked(View view){
-        if(validMeasurement(location)){
-            setRadioButtonColor(location, Color.GREEN);
+        location+=1;
+
+        if(validMeasurement(location-1)){
+            setRadioButtonColor(location-1, Color.GREEN);
         }
         else{
-            setRadioButtonColor(location, Color.BLACK);
+            setRadioButtonColor(location-1, Color.BLACK);
         }
-        //TODO: Check voor als location 8 is, dan tekst van knop veranderen naar 'Go to Report'
-        location+=1;
+
+        if(location == 7){
+            Button button = findViewById(R.id.btnClear);
+            button.setText("Go To Report");
+        }
+        else if(location == 8){
+            //TODO: Check voor als location 8 is, dan tekst van knop veranderen naar 'Go to Report'
+            Intent intent = new Intent(MainActivity.this, Results.class);
+            intent.putExtra("measurements", measurements);
+            startActivity(intent);
+        }
+
         setRadioButtonColor(location, Color.BLUE);
         if(listening==false){
             ColorMapper colorMapper = new ColorMapper(getResources().openRawResource(R.raw.rgb_values));
