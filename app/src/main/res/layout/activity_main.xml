@@ -14,38 +14,136 @@
         android:orientation="vertical"
         tools:context=".MainActivity">
 
-        <Button
-            android:id="@+id/btnStart"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="onBtnStartClicked"
-            android:text="START"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/edtTxtName" />
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/btnStop"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="onBtnStopClicked"
-            android:text="STOP"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/edtTxtName" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-        <Button
-            android:id="@+id/btnClear"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="onBtnClearClicked"
-            android:text="Clear"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/edtTxtName" />
+                <Button
+                    android:id="@+id/btnStart"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:onClick="onBtnStartClicked"
+                    android:text="START" />
+
+                <Button
+                    android:id="@+id/btnStop"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:onClick="onBtnStopClicked"
+                    android:text="STOP" />
+
+                <Button
+                    android:id="@+id/btnClear"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:onClick="onBtnNextLocClicked"
+                    android:text="Next Location" />
+
+            </LinearLayout>
+
+            <RelativeLayout
+                android:id="@+id/parentLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/backImage"
+                    android:layout_width="200dp"
+                    android:layout_height="150dp"
+                    android:src="@drawable/back"/>
+
+                <RadioButton
+                    android:id="@+id/loc0"
+                    android:layout_width="31dp"
+                    android:layout_height="30dp"
+                    android:layout_alignLeft="@id/backImage"
+                    android:layout_alignTop="@id/backImage"
+                    android:checked="true"
+                    android:layout_marginLeft="66dp"
+                    android:layout_marginTop="19dp" />
+
+                <RadioButton
+                    android:id="@+id/loc1"
+                    android:layout_width="31dp"
+                    android:layout_height="30dp"
+                    android:layout_alignLeft="@id/backImage"
+                    android:layout_alignTop="@id/backImage"
+                    android:checked="true"
+                    android:layout_marginLeft="100dp"
+                    android:layout_marginTop="19dp" />
+
+                <RadioButton
+                    android:id="@+id/loc2"
+                    android:layout_width="31dp"
+                    android:layout_height="30dp"
+                    android:layout_alignLeft="@id/backImage"
+                    android:layout_alignTop="@id/backImage"
+                    android:checked="true"
+                    android:layout_marginLeft="66dp"
+                    android:layout_marginTop="46dp" />
+
+                <RadioButton
+                    android:id="@+id/loc3"
+                    android:layout_width="31dp"
+                    android:layout_height="30dp"
+                    android:layout_alignLeft="@id/backImage"
+                    android:layout_alignTop="@id/backImage"
+                    android:checked="true"
+                    android:layout_marginLeft="100dp"
+                    android:layout_marginTop="46dp" />
+
+                <RadioButton
+                    android:id="@+id/loc4"
+                    android:layout_width="31dp"
+                    android:layout_height="30dp"
+                    android:layout_alignLeft="@id/backImage"
+                    android:layout_alignTop="@id/backImage"
+                    android:checked="true"
+                    android:layout_marginLeft="51dp"
+                    android:layout_marginTop="74dp" />
+
+                <RadioButton
+                    android:id="@+id/loc5"
+                    android:layout_width="31dp"
+                    android:layout_height="30dp"
+                    android:layout_alignLeft="@id/backImage"
+                    android:layout_alignTop="@id/backImage"
+                    android:checked="true"
+                    android:layout_marginLeft="73dp"
+                    android:layout_marginTop="75dp" />
+
+                <RadioButton
+                    android:id="@+id/loc6"
+                    android:layout_width="31dp"
+                    android:layout_height="30dp"
+                    android:layout_alignLeft="@id/backImage"
+                    android:layout_alignTop="@id/backImage"
+                    android:checked="true"
+                    android:layout_marginLeft="96dp"
+                    android:layout_marginTop="75dp" />
+
+                <RadioButton
+                    android:id="@+id/loc7"
+                    android:layout_width="31dp"
+                    android:layout_height="30dp"
+                    android:layout_alignLeft="@id/backImage"
+                    android:layout_alignTop="@id/backImage"
+                    android:checked="true"
+                    android:layout_marginLeft="118dp"
+                    android:layout_marginTop="75dp" />
+
+            </RelativeLayout>
+
+        </LinearLayout>
 
         <com.github.mikephil.charting.charts.LineChart
             android:id="@+id/timechart"
@@ -64,24 +162,12 @@
             android:onClick="onBtnDLClicked"
             android:text="Test Deep Learning Model" />
 
-
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="233dp"
         android:layout_height="match_parent"
         android:orientation="vertical">
-
-        <Button
-            android:id="@+id/button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:onClick="onBtnTestModelClicked"
-            android:text="Test Model"
-            android:textAllCaps="false"
-            android:textSize="21sp"
-            android:textStyle="bold" />
 
         <ImageView
             android:id="@+id/imageView"
@@ -135,5 +221,6 @@
             android:textSize="22sp" />
 
     </LinearLayout>
+
 
 </LinearLayout>

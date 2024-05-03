@@ -95,7 +95,7 @@ public class TimeDomain {
         }
         // Update dataSet
         LineDataSet dataSet = new LineDataSet(timePlot, "SoundWave");
-        dataSet.setColor(Color.RED);
+        dataSet.setColor(Color.BLUE);
         dataSet.setLineWidth(1f);
         dataSet.setDrawCircles(false);
         LineData lineData = new LineData(dataSet);

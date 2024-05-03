@@ -29,15 +29,13 @@ public class ModelHandler extends AppCompatActivity {
     TextView result;
     TextView confidence;
     ImageView imageView;
-    Button picture;
     ColorMapper cM;
     Context context;
 
-    public ModelHandler(TextView result, TextView confidence, ImageView imageView, Button picture, ColorMapper colorMapper, Context context) {
+    public ModelHandler(TextView result, TextView confidence, ImageView imageView, ColorMapper colorMapper, Context context) {
         this.result = result;
         this.confidence = confidence;
         this.imageView = imageView;
-        this.picture = picture;
         this.cM = colorMapper;
         this.context = context;
     }

@@ -1,12 +1,15 @@
 package com.example.milestone2;
 
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.media.ThumbnailUtils;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     int interval = 5;
     int wavfile;
     int pngfile;
+    int location = 0;
 
     private RealTimeGraphs realtime;
     private ModelHandler modelHandler;
@@ -65,8 +69,11 @@ public class MainActivity extends AppCompatActivity {
 
         realtime = new RealTimeGraphs(colorMapper,findViewById(R.id.timechart),findViewById(R.id.scatterchart));
 
-        modelHandler = new ModelHandler(findViewById(R.id.result), findViewById(R.id.confidence), imageView, findViewById(R.id.button), colorMapper, getApplicationContext());
-        
+        modelHandler = new ModelHandler(findViewById(R.id.result), findViewById(R.id.confidence), imageView, colorMapper, getApplicationContext());
+
+        setRadioButtons();
+        setRadioButtonColor(location, Color.BLUE);
+
         if(testClass == 0){
             wavfile = R.raw.wsl_1_1400_0;
             pngfile = R.raw.sl_1_1400_0;
@@ -119,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
             InputStream inputStream = new FileInputStream(files[i]);
             Measurement measurement = modelHandler.preProcessImage(inputStream);
             measurement.setWavFile(files[i]);
-            measurement.setLocation(0);
+            measurement.setLocation(location);
             measurement.setEpoch(i);
             measurements[i]=measurement;
             imageView.setImageBitmap(measurements[i].image);
@@ -151,13 +158,22 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void onBtnClearClicked(View view){
+    public void onBtnNextLocClicked(View view){
+        if(validMeasurement(location)){
+            setRadioButtonColor(location, Color.GREEN);
+        }
+        else{
+            setRadioButtonColor(location, Color.BLACK);
+        }
+        //TODO: Check voor als location 8 is, dan tekst van knop veranderen naar 'Go to Report'
+        location+=1;
+        setRadioButtonColor(location, Color.BLUE);
         if(listening==false){
             ColorMapper colorMapper = new ColorMapper(getResources().openRawResource(R.raw.rgb_values));
 
             realtime = new RealTimeGraphs(colorMapper,findViewById(R.id.timechart),findViewById(R.id.scatterchart));
 
-            modelHandler = new ModelHandler(findViewById(R.id.result), findViewById(R.id.confidence), imageView, findViewById(R.id.button), colorMapper, getApplicationContext());
+            modelHandler = new ModelHandler(findViewById(R.id.result), findViewById(R.id.confidence), imageView, colorMapper, getApplicationContext());
 
         }
     }
@@ -212,5 +228,88 @@ public class MainActivity extends AppCompatActivity {
         realtime.audioDSy.clear();
 
          */
+    }
+
+    private void setRadioButtons(){
+        ColorStateList colorStateList = ColorStateList.valueOf(Color.BLACK);
+
+        RadioButton loc0 = findViewById(R.id.loc0);
+        loc0.setButtonTintList(colorStateList);
+
+        RadioButton loc1 = findViewById(R.id.loc1);
+        loc1.setButtonTintList(colorStateList);
+
+        RadioButton loc2 = findViewById(R.id.loc2);
+        loc2.setButtonTintList(colorStateList);
+
+        RadioButton loc3 = findViewById(R.id.loc3);
+        loc3.setButtonTintList(colorStateList);
+
+        RadioButton loc4 = findViewById(R.id.loc4);
+        loc4.setButtonTintList(colorStateList);
+
+        RadioButton loc5 = findViewById(R.id.loc5);
+        loc5.setButtonTintList(colorStateList);
+
+        RadioButton loc6 = findViewById(R.id.loc6);
+        loc6.setButtonTintList(colorStateList);
+
+        RadioButton loc7 = findViewById(R.id.loc7);
+        loc7.setButtonTintList(colorStateList);
+    }
+
+    private void setRadioButtonColor(int location, int color) {
+        RadioButton radioButton = null;
+        switch (location) {
+            case 0:
+                radioButton = findViewById(R.id.loc0);
+                break;
+            case 1:
+                radioButton = findViewById(R.id.loc1);
+                break;
+            case 2:
+                radioButton = findViewById(R.id.loc2);
+                break;
+            case 3:
+                radioButton = findViewById(R.id.loc3);
+                break;
+            case 4:
+                radioButton = findViewById(R.id.loc4);
+                break;
+            case 5:
+                radioButton = findViewById(R.id.loc5);
+                break;
+            case 6:
+                radioButton = findViewById(R.id.loc6);
+                break;
+            case 7:
+                radioButton = findViewById(R.id.loc7);
+                break;
+            default:
+                // Handle if location is out of range
+                return;
+        }
+
+        // Set the color for the RadioButton
+        ColorStateList colorStateList = ColorStateList.valueOf(color);
+        radioButton.setButtonTintList(colorStateList);
+    }
+
+    private boolean validMeasurement(int location){
+        int count = 0;
+        for(Measurement measurement : measurements){
+            try{
+                if(measurement.location == location){
+                    count+=1;
+                }
+            } catch (Exception e) {
+            }
+        }
+        if(count==3){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 }
