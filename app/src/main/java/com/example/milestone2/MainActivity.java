@@ -174,11 +174,12 @@ public class MainActivity extends AppCompatActivity {
             button.setText("Go To Report");
         }
         else if(location == 8){
-            //TODO: Check voor als location 8 is, dan tekst van knop veranderen naar 'Go to Report'
             Intent intent = new Intent(MainActivity.this, Results.class);
             intent.putExtra("measurements", measurements);
             startActivity(intent);
         }
+
+        //TODO: nakijken of measurements wel de juiste inhoud heeft voordat ge naar het volgende scherm gaat
 
         setRadioButtonColor(location, Color.BLUE);
         if(listening==false){
