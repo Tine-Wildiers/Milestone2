@@ -49,9 +49,9 @@ public class Measurement implements Parcelable {
 
     // Parcelable implementation
     protected Measurement(Parcel in) {
-        byte[] byteArray = new byte[in.readInt()];
-        in.readByteArray(byteArray);
-        image = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+        //byte[] byteArray = new byte[in.readInt()];
+        //in.readByteArray(byteArray);
+        //image = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
         classification = in.readString();
         confidences = in.createFloatArray();
         wavFile = (File) in.readSerializable();
@@ -61,11 +61,11 @@ public class Measurement implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        image.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        byte[] byteArray = stream.toByteArray();
-        dest.writeInt(byteArray.length);
-        dest.writeByteArray(byteArray);
+        //ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        //image.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        //byte[] byteArray = stream.toByteArray();
+        //dest.writeInt(byteArray.length);
+        //dest.writeByteArray(byteArray);
         dest.writeString(classification);
         dest.writeFloatArray(confidences);
         dest.writeSerializable(wavFile);

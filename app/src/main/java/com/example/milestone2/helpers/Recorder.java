@@ -29,7 +29,7 @@ public class Recorder {
     private final int minBufferSize;
 
     private AudioRecord audioRecord;
-    private final AudioData audioData;
+    private AudioData audioData;
 
     private long time = 0L;
 
@@ -103,23 +103,28 @@ public class Recorder {
         return audioData;
     }
 
+    public void resetRecorder(){
+        audioRecord.release();
+        audioRecord = new AudioRecord(1, sampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, minBufferSize);
+        audioData = new AudioData(minBufferSize);
+    }
+
     public void resetAudioRecord() {
         if (audioRecord != null) {
             audioRecord.release(); // Release the existing AudioRecord instance
         }
 
         // Create a new AudioRecord instance
-        audioRecord = new AudioRecord(
-                1, // AudioSource.MIC
-                sampleRate,
-                AudioFormat.CHANNEL_IN_MONO,
-                AudioFormat.ENCODING_PCM_16BIT,
-                minBufferSize
-        );
+        audioRecord = new AudioRecord(1, sampleRate,  AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, minBufferSize);
+        //audioData = new AudioData(minBufferSize);
+
+        //if(this.audioRecord.getState() != AudioRecord.STATE_INITIALIZED) {
+            //throw new UnsupportedOperationException("This devices doesn't support AudioRecord");
+        //}
     }
 
 
-        public int getBufferSize() {
+    public int getBufferSize() {
         return minBufferSize;
     }
 

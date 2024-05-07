@@ -4,6 +4,7 @@ import android.graphics.Color;
 
 import com.example.milestone2.readers.CSVFile;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,9 +13,10 @@ public class ColorMapper {
     List<Integer> colorMapper = new ArrayList<Integer>();
     int colorMapperSize;
 
-    public ColorMapper(InputStream rgbValues) {
+    public ColorMapper(InputStream rgbValues) throws IOException {
         CSVFile csvFile = new CSVFile(rgbValues);
         setRGBPalette(csvFile.readRGB());
+        rgbValues.close();
     }
 
     public void setRGBPalette(List<List<Float>> colorPalette){

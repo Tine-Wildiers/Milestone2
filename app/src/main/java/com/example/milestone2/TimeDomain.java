@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class TimeDomain {
-    public final List<Entry> timePlot = new ArrayList<>();
+    public List<Entry> timePlot = new ArrayList<>();
     private LineChart timeChart;
     private final int sampleRate;
 
@@ -114,4 +114,14 @@ public class TimeDomain {
         }
         return multiples;
     }
+
+    void resetTimePlot(){
+        timePlot = new ArrayList<>();
+        int i = -256000;
+        while (timePlot.size() !=  1000) {
+            timePlot.add(new Entry(i, 0.0f));
+            i+= 256;
+        }
+    }
+
 }

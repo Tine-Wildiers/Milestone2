@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private RealTimeGraphs realtime;
     private ModelHandler modelHandler;
     private Measurement[] measurements = new Measurement[24];
+    private ColorMapper colorMapper;
 
     ImageView imageView;
     private boolean listening = false;
@@ -66,7 +67,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         imageView = findViewById(R.id.imageView);
 
-        ColorMapper colorMapper = new ColorMapper(getResources().openRawResource(R.raw.rgb_values));
+
+        colorMapper = null;
+        try {
+            colorMapper = new ColorMapper(getResources().openRawResource(R.raw.rgb_values));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
 
         realtime = new RealTimeGraphs(colorMapper,findViewById(R.id.timechart),findViewById(R.id.scatterchart));
 
@@ -109,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
         handler.postDelayed(saveScatterChartRunnable, interval*1000);
     }
 
-    public void onBtnStopClicked(View view) throws FileNotFoundException {
+    public void onBtnStopClicked(View view) throws IOException {
         listening = false;
         handler.removeCallbacksAndMessages(null);
         realtime.dataProvider.setPaused(true);
@@ -130,6 +138,7 @@ public class MainActivity extends AppCompatActivity {
             measurement.setLocation(location);
             measurement.setEpoch(i);
             measurements[i+location*3]=measurement;
+            inputStream.close();
             imageView.setImageBitmap(measurements[i+location*3].image);
             imageView.invalidate();
         }
@@ -138,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
         realtime.audioDSy.clear();
     }
 
-    public void onBtnDLClicked(View view) {
+    public void onBtnDLClicked(View view) throws IOException {
         InputStream inputStream = getResources().openRawResource(wavfile);
         modelHandler.preProcessImage(inputStream);
     }
@@ -159,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void onBtnNextLocClicked(View view){
+    public void onBtnNextLocClicked(View view) throws IOException {
         location+=1;
 
         if(validMeasurement(location-1)){
@@ -183,19 +192,14 @@ public class MainActivity extends AppCompatActivity {
 
         setRadioButtonColor(location, Color.BLUE);
         if(listening==false){
-            ColorMapper colorMapper = new ColorMapper(getResources().openRawResource(R.raw.rgb_values));
-
-            realtime = new RealTimeGraphs(colorMapper,findViewById(R.id.timechart),findViewById(R.id.scatterchart));
-
-            modelHandler = new ModelHandler(findViewById(R.id.result), findViewById(R.id.confidence), imageView, colorMapper, getApplicationContext());
-
+            realtime.resetRealTimeGraphs();
         }
     }
 
     private void showResults(){
         String[] classes = {"0", "1", "2", "3"};
 
-        float[] confidences = measurements[0].confidences;
+        float[] confidences = measurements[location*3].confidences;
         int maxPos = 0;
         float maxConfidence = 0;
         for(int i = 0; i < confidences.length; i++){
@@ -211,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
 
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < classes.length; i++) {
-            sb.append(String.format(Locale.US, "%s: %.1f%%, %.1f%%, %.1f%%\n", classes[i], measurements[0].confidences[i] * 100,measurements[1].confidences[i] * 100, measurements[2].confidences[i] * 100));
+            sb.append(String.format(Locale.US, "%s: %.1f%%, %.1f%%, %.1f%%\n", classes[i], measurements[location*3].confidences[i] * 100,measurements[location*3+1].confidences[i] * 100, measurements[location*3+2].confidences[i] * 100));
 
         }
         confidence.setText(sb.toString());

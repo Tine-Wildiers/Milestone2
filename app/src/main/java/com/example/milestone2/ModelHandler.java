@@ -104,7 +104,7 @@ public class ModelHandler extends AppCompatActivity {
         }
     }
 
-    public Measurement preProcessImage(InputStream inputStream){
+    public Measurement preProcessImage(InputStream inputStream) throws IOException {
         float[] audioData = WavFileReader.readWavFile(inputStream);
 
         MelSpectrogram melSpectrogram = new MelSpectrogram();

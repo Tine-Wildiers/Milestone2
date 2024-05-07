@@ -15,7 +15,8 @@ import com.trello.rxlifecycle3.android.RxLifecycleAndroid;
 import io.reactivex.subjects.BehaviorSubject;
 
 public class RealTimeGraphs {
-    final Recorder dataProvider = new Recorder();
+    //de Recorder() roept al een failed to call close op maar dit gebeurt in een api functie
+    Recorder dataProvider = new Recorder();
     private final BehaviorSubject<FragmentEvent> lifecycleSubject = BehaviorSubject.create();
     private final Radix2FFT fft = new Radix2FFT(dataProvider.getBufferSize());
     private final int sampleRate = dataProvider.getSampleRate();
@@ -23,7 +24,7 @@ public class RealTimeGraphs {
     public FrequencyDomain frequencyDomain = new FrequencyDomain();
     private int slowDown = 0;
     private final DoubleValues fftData = new DoubleValues();
-    final ShortValues audioDSy = new ShortValues(dataProvider.getBufferSize());
+    ShortValues audioDSy = new ShortValues(dataProvider.getBufferSize());
 
     public RealTimeGraphs(ColorMapper cM, LineChart timeChart, ScatterChart spectrogram) {
         timeDomain.setTimeChart(timeChart);
@@ -86,5 +87,19 @@ public class RealTimeGraphs {
             }
         }
         return downScaledArray;
+    }
+
+    void resetRealTimeGraphs(){
+        //TODO: kijken welke parameters gereset moeten worden
+        //TODO: spectrogram resetten
+
+
+        //Gebeurt al in de button Stop methode
+        //dataProvider.resetAudioRecord();
+        //dataProvider.resetRecorder();
+        dataProvider = new Recorder();
+        timeDomain.resetTimePlot();
+        timeDomain.updateTimeGraph();
+        //frequencyDomain = new FrequencyDomain();
     }
 }
