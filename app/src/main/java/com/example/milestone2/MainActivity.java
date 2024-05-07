@@ -129,8 +129,8 @@ public class MainActivity extends AppCompatActivity {
             measurement.setWavFile(files[i]);
             measurement.setLocation(location);
             measurement.setEpoch(i);
-            measurements[i]=measurement;
-            imageView.setImageBitmap(measurements[i].image);
+            measurements[i+location*3]=measurement;
+            imageView.setImageBitmap(measurements[i+location*3].image);
             imageView.invalidate();
         }
         showResults();
@@ -179,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         }
 
-        //TODO: nakijken of measurements wel de juiste inhoud heeft voordat ge naar het volgende scherm gaat
+        //TODO: audiofiles worden niet goed gesloten
 
         setRadioButtonColor(location, Color.BLUE);
         if(listening==false){
