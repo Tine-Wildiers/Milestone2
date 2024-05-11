@@ -7,47 +7,33 @@
     android:layout_height="match_parent"
     tools:context=".Results">
 
-    <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="337dp"
-        android:layout_height="283dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.477"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.265"
-        app:srcCompat="@drawable/back" />
-
     <TextView
         android:id="@+id/result0"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginStart="60dp"
+        android:layout_marginTop="100dp"
         android:text=""
         android:textColor="#C30000"
         android:textSize="27sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/result2"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.142" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/result1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginEnd="344dp"
+        android:layout_marginStart="784dp"
+        android:layout_marginTop="100dp"
         android:text=""
         android:textColor="#C30000"
         android:textSize="27sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/result3"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.173" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/result2"
@@ -55,26 +41,26 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginStart="60dp"
-        android:layout_marginBottom="156dp"
+        android:layout_marginTop="196dp"
         android:text=""
         android:textColor="#C30000"
         android:textSize="27sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/result4"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/result3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="228dp"
-        android:layout_marginEnd="344dp"
+        android:layout_marginStart="836dp"
+        android:layout_marginTop="196dp"
         android:text=""
         android:textColor="#C30000"
         android:textSize="27sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -82,159 +68,170 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginStart="36dp"
-        android:layout_marginBottom="192dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="300dp"
         android:text=""
         android:textColor="#C30000"
         android:textSize="27sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/result5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginEnd="804dp"
-        android:layout_marginBottom="228dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="456dp"
         android:text=""
         android:textColor="#C30000"
         android:textSize="27sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/result6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginStart="548dp"
-        android:layout_marginBottom="184dp"
+        android:layout_marginStart="836dp"
+        android:layout_marginTop="456dp"
         android:text=""
         android:textColor="#C30000"
         android:textSize="27sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/result7"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="152dp"
-        android:layout_marginEnd="232dp"
+        android:layout_marginStart="836dp"
+        android:layout_marginTop="300dp"
         android:text=""
         android:textColor="#C30000"
         android:textSize="27sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/result3" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/confidence0"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginStart="60dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginStart="112dp"
+        android:layout_marginTop="100dp"
         android:text=""
         android:textColor="#000"
         android:textSize="22sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/result0" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/confidence1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="340dp"
+        android:layout_marginStart="836dp"
+        android:layout_marginTop="104dp"
         android:text=""
         android:textColor="#000"
         android:textSize="22sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/result1" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/confidence2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginStart="60dp"
-        android:layout_marginTop="148dp"
+        android:layout_marginStart="112dp"
+        android:layout_marginTop="200dp"
         android:text=""
         android:textColor="#000"
         android:textSize="22sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/result0" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/confidence3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="216dp"
-        android:layout_marginEnd="344dp"
+        android:layout_marginStart="892dp"
+        android:layout_marginTop="200dp"
         android:text=""
         android:textColor="#000"
         android:textSize="22sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/result1" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/confidence4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginStart="36dp"
-        android:layout_marginTop="340dp"
+        android:layout_marginStart="112dp"
+        android:layout_marginTop="304dp"
         android:text=""
         android:textColor="#000"
         android:textSize="22sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/result0" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/confidence5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="400dp"
-        android:layout_marginEnd="804dp"
+        android:layout_marginStart="112dp"
+        android:layout_marginTop="460dp"
         android:text=""
         android:textColor="#000"
         android:textSize="22sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/result1" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/confidence6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginStart="548dp"
-        android:layout_marginTop="356dp"
+        android:layout_marginStart="892dp"
+        android:layout_marginTop="460dp"
         android:text=""
         android:textColor="#000"
         android:textSize="22sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/result0" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/confidence7"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="400dp"
-        android:layout_marginEnd="232dp"
+        android:layout_marginStart="888dp"
+        android:layout_marginTop="304dp"
         android:text=""
         android:textColor="#000"
         android:textSize="22sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="1102dp"
+        android:layout_height="786dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/result1" />
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/reportsbackground" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
