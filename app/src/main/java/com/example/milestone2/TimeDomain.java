@@ -19,6 +19,7 @@ public class TimeDomain {
     public List<Entry> timePlot = new ArrayList<>();
     private LineChart timeChart;
     private final int sampleRate;
+    private final int maxSize = 1000; //In setup method nog aanpassing nodig als ge deze naar 2000 doet bvb.
 
     public TimeDomain(int sampleRate) {
         this.sampleRate = sampleRate;
@@ -31,14 +32,17 @@ public class TimeDomain {
     }
 
     public void setupTimeChart(){
-        int[] verticalGridLines = getVerticalGridLineLocations(sampleRate, -256000, -256000 + 1000 * 256);
+        /*
+        //int[] verticalGridLines = getVerticalGridLineLocations(sampleRate, -256000*2, -256000 + maxSize * 256); als ge maxSize verdubbelt
+        int[] verticalGridLines = getVerticalGridLineLocations(sampleRate, -256000, -256000 + maxSize * 256);
         float[] gridLinePositions = new float[verticalGridLines.length];
         for (int i = 0; i < verticalGridLines.length; i++) {
             gridLinePositions[i] = verticalGridLines[i];
         }
 
+        //int i = -256000*2;
         int i = -256000;
-        while (timePlot.size() !=  1000) {
+        while (timePlot.size() !=  maxSize) {
             timePlot.add(new Entry(i, 0.0f));
             i+= 256;
         }
@@ -53,6 +57,14 @@ public class TimeDomain {
             timeLabels.add(String.format(Locale.getDefault(), "%.2f", timeInSeconds));
         }
 
+         */
+
+        int i = 0;
+        while (timePlot.size() !=  maxSize) {
+            timePlot.add(new Entry(i, 0.0f));
+            i+= 1;
+        }
+
         XAxis xAxis = timeChart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setDrawGridLines(false);
@@ -61,11 +73,12 @@ public class TimeDomain {
         xAxis.setGridColor(Color.GRAY);
         xAxis.setGranularity(1f);
         xAxis.setGranularityEnabled(true);
-        xAxis.setValueFormatter(new IndexAxisValueFormatter(timeLabels));
+        //xAxis.setValueFormatter(new IndexAxisValueFormatter(timeLabels));
 
         Description description = new Description();
         description.setEnabled(false);
         timeChart.setDescription(description);
+        timeChart.setTouchEnabled(false);
         timeChart.getLegend().setEnabled(false);
         timeChart.getAxisRight().setDrawLabels(false);
         YAxis yAxis = timeChart.getAxisLeft();
@@ -82,7 +95,7 @@ public class TimeDomain {
 
     protected void updateTimeGraph(){
 
-        while (timePlot.size() > 1000) {
+        while (timePlot.size() > maxSize) {
             timePlot.remove(0);
         }
         // Set a gridline for each second that passes
@@ -118,10 +131,14 @@ public class TimeDomain {
     void resetTimePlot(){
         timePlot = new ArrayList<>();
         int i = -256000;
-        while (timePlot.size() !=  1000) {
+        while (timePlot.size() !=  maxSize) {
             timePlot.add(new Entry(i, 0.0f));
             i+= 256;
         }
+    }
+
+    int getMaxSize(){
+        return maxSize;
     }
 
 }

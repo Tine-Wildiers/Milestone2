@@ -38,6 +38,7 @@ public class FrequencyDomain {
     public void setupSpectrogramGraph(){
         spectrogramChart.getDescription().setEnabled(false);
         spectrogramChart.getLegend().setEnabled(false);
+        spectrogramChart.setTouchEnabled(false);
         spectrogramChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
         spectrogramChart.getRenderer().getPaintValues().setStyle(Paint.Style.FILL);
 

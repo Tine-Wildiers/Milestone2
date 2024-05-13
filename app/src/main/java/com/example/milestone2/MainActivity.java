@@ -169,30 +169,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onBtnNextLocClicked(View view) throws IOException {
-        location+=1;
+        if(!listening) {
+            location += 1;
 
-        if(validMeasurement(location-1)){
-            setRadioButtonColor(location-1, Color.GREEN);
-        }
-        else{
-            setRadioButtonColor(location-1, Color.BLACK);
-        }
+            if (validMeasurement(location - 1)) {
+                setRadioButtonColor(location - 1, Color.GREEN);
+            } else {
+                setRadioButtonColor(location - 1, Color.BLACK);
+            }
 
-        if(location == 7){
-            Button button = findViewById(R.id.btnClear);
-            button.setText("Go To Report");
-        }
-        else if(location == 8){
-            Intent intent = new Intent(MainActivity.this, Results.class);
-            intent.putExtra("measurements", measurements);
-            startActivity(intent);
-        }
+            if (location == 7) {
+                Button button = findViewById(R.id.btnClear);
+                button.setText("Go To Report");
+            } else if (location == 8) {
+                Intent intent = new Intent(MainActivity.this, Results.class);
+                intent.putExtra("measurements", measurements);
+                startActivity(intent);
+            }
 
-        //TODO: audiofiles worden niet goed gesloten
+            //TODO: audiofiles worden niet goed gesloten
 
-        setRadioButtonColor(location, Color.BLUE);
-        if(listening==false){
-            realtime.resetRealTimeGraphs();
+            setRadioButtonColor(location, Color.BLUE);
+            if (listening == false) {
+                realtime.resetRealTimeGraphs();
+            }
         }
     }
 

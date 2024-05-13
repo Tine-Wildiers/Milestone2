@@ -25,6 +25,7 @@ public class RealTimeGraphs {
     private int slowDown = 0;
     private final DoubleValues fftData = new DoubleValues();
     ShortValues audioDSy = new ShortValues(dataProvider.getBufferSize());
+    private int timeindex = 0;
 
     public RealTimeGraphs(ColorMapper cM, LineChart timeChart, ScatterChart spectrogram) {
         timeDomain.setTimeChart(timeChart);
@@ -38,6 +39,7 @@ public class RealTimeGraphs {
                 audioDSy.add(audioData.yData.getItemsArray());
 
                 // ----- Update Time Plot -----
+                /*
                 timeDomain.timePlot.add(new Entry((int) audioData.xData.get(0), (float) audioData.yData.getItemsArray()[0]));
                 timeDomain.timePlot.add(new Entry((int) audioData.xData.get(256), (float) audioData.yData.get(256)));
                 timeDomain.timePlot.add(new Entry((int) audioData.xData.get(512), (float) audioData.yData.get(512)));
@@ -46,6 +48,20 @@ public class RealTimeGraphs {
                 timeDomain.timePlot.add(new Entry((int) audioData.xData.get(1280), (float) audioData.yData.get(1280)));
                 timeDomain.timePlot.add(new Entry((int) audioData.xData.get(1536), (float) audioData.yData.get(1536)));
                 timeDomain.timePlot.add(new Entry((int) audioData.xData.get(1792), (float) audioData.yData.get(1792)));
+                */
+                if(timeindex > timeDomain.getMaxSize()-8){
+                    timeindex = 0;
+                }
+                timeDomain.timePlot.set(timeindex, new Entry(timeindex, (float) audioData.yData.getItemsArray()[0]));
+                timeDomain.timePlot.set(timeindex+1, new Entry(timeindex +1, (float) audioData.yData.get(256)));
+                timeDomain.timePlot.set(timeindex+2, new Entry(timeindex +2, (float) audioData.yData.get(512)));
+                timeDomain.timePlot.set(timeindex+3, new Entry(timeindex +3, (float) audioData.yData.get(768)));
+                timeDomain.timePlot.set(timeindex+4, new Entry(timeindex +4, (float) audioData.yData.get(1024)));
+                timeDomain.timePlot.set(timeindex+5, new Entry(timeindex +5, (float) audioData.yData.get(1280)));
+                timeDomain.timePlot.set(timeindex+6, new Entry(timeindex +6, (float) audioData.yData.get(1536)));
+                timeDomain.timePlot.set(timeindex+7, new Entry(timeindex +7, (float) audioData.yData.get(1792)));
+                timeindex += 8;
+
                 timeDomain.updateTimeGraph();
 
                 // ----- Update Frequency Plot -----
