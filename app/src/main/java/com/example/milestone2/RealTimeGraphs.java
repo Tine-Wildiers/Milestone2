@@ -26,6 +26,7 @@ public class RealTimeGraphs {
     private final DoubleValues fftData = new DoubleValues();
     ShortValues audioDSy = new ShortValues(dataProvider.getBufferSize());
     private int timeindex = 0;
+    private int frequencyindex = 0;
 
     public RealTimeGraphs(ColorMapper cM, LineChart timeChart, ScatterChart spectrogram) {
         timeDomain.setTimeChart(timeChart);
@@ -68,9 +69,13 @@ public class RealTimeGraphs {
                 fft.run(audioData.yData, fftData);
                 //updateFrequencyGraph();
 
-                // ----- Update Spectrogram Plot -----
+                // ----- Update Spectrogram Plot -----\
+                if(frequencyindex > frequencyDomain.getMaxSize()-1){
+                    frequencyindex = 0;
+                }
+
                 double[] downScaledArray = downscaleArray(frequencyDomain.getSpectogramYRes());
-                frequencyDomain.updateSpectrogram(downScaledArray);
+                frequencyindex = frequencyDomain.updateSpectrogram(downScaledArray, frequencyindex);
 
                 if(slowDown%3 == 0){
                     frequencyDomain.renderSpectrogram();
@@ -118,4 +123,6 @@ public class RealTimeGraphs {
         timeDomain.updateTimeGraph();
         //frequencyDomain = new FrequencyDomain();
     }
+
+
 }

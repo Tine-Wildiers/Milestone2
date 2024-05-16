@@ -20,7 +20,7 @@ public class FrequencyDomain {
         return spectogramYRes;
     }
 
-    private final int spectogramXRes = 50;
+    private final int spectogramXRes = 100;
     private final int spectogramYRes = 32;
     MyScatterDataSet spectrogramDS;
     List<Integer> colors = new ArrayList<>();
@@ -67,7 +67,8 @@ public class FrequencyDomain {
         spectrogramChart.buildDrawingCache();
     }
 
-    public void updateSpectrogram(double[] downScaledArray){
+    public int updateSpectrogram(double[] downScaledArray, int ind){
+        int movingInd = ind;
         for (int i = 0; i < spectogramYRes; i++) {
 
             // --- old version ---
@@ -77,12 +78,14 @@ public class FrequencyDomain {
             index = Math.min((int) ((downScaledArray[i] +50) * cM.getColorMapperSize() / 100f), cM.getColorMapperSize() - 1);
             int color = cM.getColor(index);
 
-            colors.add(color);
+            colors.add(movingInd, color);
+            movingInd+=1;
         }
 
         while(colors.size() > spectogramYRes*spectogramXRes){
-            colors.remove(0);
+            colors.remove(spectogramYRes*spectogramXRes);
         }
+        return movingInd;
     }
 
     public void renderSpectrogram(){
@@ -99,5 +102,9 @@ public class FrequencyDomain {
 
     public void setColorMapper(ColorMapper cM) {
         this.cM = cM;
+    }
+
+    int getMaxSize(){
+        return spectogramXRes*spectogramYRes;
     }
 }

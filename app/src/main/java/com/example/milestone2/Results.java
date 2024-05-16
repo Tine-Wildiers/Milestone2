@@ -239,7 +239,6 @@ public class Results extends AppCompatActivity {
             outputStream.flush();
             outputStream.close();
         } catch (Throwable e) {
-            // Several error may come out with file handling or DOM
             e.printStackTrace();
         }
     }

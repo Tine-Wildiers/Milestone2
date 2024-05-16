@@ -1,7 +1,9 @@
 package com.example.milestone2.helpers;
 
 import android.media.AudioFormat;
+import android.media.AudioManager;
 import android.media.AudioRecord;
+import android.media.AudioTrack;
 import android.os.Environment;
 import android.util.Log;
 
@@ -11,9 +13,6 @@ import com.example.milestone2.types.ShortValues;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
@@ -24,6 +23,7 @@ public class Recorder {
     protected Observable<AudioData> dataObservable;
     private volatile boolean isStarted = false;
     public volatile boolean isPaused = false;
+    private AudioTrack audioTrack;
 
     private final int sampleRate;
     private final int minBufferSize;
@@ -74,6 +74,12 @@ public class Recorder {
         this.sampleRate = sampleRate;
         this.minBufferSize = minBufferSize;
         this.audioRecord = new AudioRecord(1, sampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, minBufferSize);
+        this.audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
+                sampleRate,
+                AudioFormat.CHANNEL_OUT_MONO,
+                AudioFormat.ENCODING_PCM_16BIT,
+                minBufferSize,
+                AudioTrack.MODE_STREAM);
         this.audioData = new AudioData(minBufferSize);
 
         if(this.audioRecord.getState() != AudioRecord.STATE_INITIALIZED) {
@@ -87,10 +93,12 @@ public class Recorder {
 
     protected void onStart() {
         audioRecord.startRecording();
+        audioTrack.play();
     }
 
     protected void onStop() {
         audioRecord.stop();
+        audioTrack.stop();
     }
 
     protected AudioData onNext() {
@@ -100,6 +108,9 @@ public class Recorder {
         for (int i = 0; i < minBufferSize; i++) {
             itemsArray[i] = time++;
         }
+
+        audioTrack.write(audioData.yData.getItemsArray(), 0, minBufferSize);
+
         return audioData;
     }
 

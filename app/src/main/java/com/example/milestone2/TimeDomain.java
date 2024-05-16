@@ -130,10 +130,12 @@ public class TimeDomain {
 
     void resetTimePlot(){
         timePlot = new ArrayList<>();
-        int i = -256000;
+        //int i = -256000;
+        int i = 0;
         while (timePlot.size() !=  maxSize) {
             timePlot.add(new Entry(i, 0.0f));
-            i+= 256;
+            //i+= 256;
+            i+=1;
         }
     }
 
