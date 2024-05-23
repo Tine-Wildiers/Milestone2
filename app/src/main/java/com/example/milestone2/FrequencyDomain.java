@@ -7,6 +7,7 @@ import com.example.milestone2.types.MyScatterDataSet;
 import com.example.milestone2.types.RectangleScatter;
 import com.github.mikephil.charting.charts.ScatterChart;
 import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.ScatterData;
 
@@ -20,8 +21,8 @@ public class FrequencyDomain {
         return spectogramYRes;
     }
 
-    private final int spectogramXRes = 100;
-    private final int spectogramYRes = 32;
+    private final int spectogramXRes = 128;  //zou dan evenveel moeten tonen als time graph
+    private final int spectogramYRes = 16;
     MyScatterDataSet spectrogramDS;
     List<Integer> colors = new ArrayList<>();
     int index;
@@ -46,10 +47,7 @@ public class FrequencyDomain {
 
         for (int i = 0; i < spectogramXRes; i++) {
             for (int j = 0; j < spectogramYRes; j++){
-                //int color = Color.HSVToColor(new float[]{(float) (i * j * 120) /(spectogramXRes*spectogramYRes), 1f, 1f});
-                double calcVal = ( (double) (i * j) /(spectogramXRes*spectogramYRes) * cM.getColorMapperSize());
-                index = Math.min((int) calcVal, cM.getColorMapperSize() - 1);
-                int color = cM.getColor(index);
+                int color = cM.getColor(1);
                 colors.add(color);
                 entries.add(new Entry(i, j));
             }
@@ -60,6 +58,17 @@ public class FrequencyDomain {
         spectrogramDS.setColors(colors);
         ScatterData scatterData = new ScatterData(spectrogramDS);
 
+        XAxis xAxis = spectrogramChart.getXAxis();
+        //xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setEnabled(false);
+        YAxis yAxis = spectrogramChart.getAxisLeft();
+        yAxis.setAxisLineWidth(2f);
+        yAxis.setAxisLineColor(Color.BLACK);
+        yAxis.setDrawGridLines(false);
+
+        YAxis rightYAxis = spectrogramChart.getAxisRight();
+        rightYAxis.setDrawGridLines(false);
+        rightYAxis.setEnabled(false);
         spectrogramChart.setData(scatterData);
         spectrogramChart.invalidate();
 

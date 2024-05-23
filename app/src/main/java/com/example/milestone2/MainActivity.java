@@ -7,6 +7,9 @@ import android.graphics.Color;
 import android.media.ThumbnailUtils;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.BackgroundColorSpan;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -198,13 +201,21 @@ public class MainActivity extends AppCompatActivity {
 
     private void showResults(){
         String[] classes = {"0", "1", "2", "3"};
+        Measurement m1 = measurements[location*3];
+        Measurement m2 = measurements[location*3+1];
+        Measurement m3 = measurements[location*3+2];
 
-        float[] confidences = measurements[location*3].confidences;
+        // Averaging the confidences
+        float[] averageConfidences = new float[classes.length];
+        for (int i = 0; i < classes.length; i++) {
+            averageConfidences[i] = (m1.confidences[i] + m2.confidences[i] + m3.confidences[i]) / 3.0f;
+        }
+
         int maxPos = 0;
         float maxConfidence = 0;
-        for(int i = 0; i < confidences.length; i++){
-            if(confidences[i] > maxConfidence){
-                maxConfidence = confidences[i];
+        for (int i = 0; i < averageConfidences.length; i++) {
+            if (averageConfidences[i] > maxConfidence) {
+                maxConfidence = averageConfidences[i];
                 maxPos = i;
             }
         }
@@ -213,12 +224,21 @@ public class MainActivity extends AppCompatActivity {
         TextView confidence = findViewById(R.id.confidence);
         result.setText(classes[maxPos]);
 
-        StringBuilder sb = new StringBuilder();
+        // Create the confidence string for each class
+        SpannableStringBuilder sb = new SpannableStringBuilder();
+        sb.append(String.format("%-10s %-10s %-10s %-10s\n", "Class", "Breath 1", "Breath 2", "Breath 3"));
+        sb.append("--------------------------------------------------------------\n");
         for (int i = 0; i < classes.length; i++) {
-            sb.append(String.format(Locale.US, "%s: %.1f%%, %.1f%%, %.1f%%\n", classes[i], measurements[location*3].confidences[i] * 100,measurements[location*3+1].confidences[i] * 100, measurements[location*3+2].confidences[i] * 100));
-
+            String row = String.format(Locale.US, "%-13s %-14.1f %-14.1f %-14.1f\n", classes[i],
+                    m1.confidences[i] * 100, m2.confidences[i] * 100, m3.confidences[i] * 100);
+            int start = sb.length();
+            sb.append(row);
+            int end = sb.length();
+            if (i == maxPos) {
+                sb.setSpan(new BackgroundColorSpan(Color.YELLOW), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
         }
-        confidence.setText(sb.toString());
+        confidence.setText(sb);
     }
 
     private void saveScatterChart() throws FileNotFoundException {

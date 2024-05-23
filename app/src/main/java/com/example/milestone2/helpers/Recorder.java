@@ -93,12 +93,12 @@ public class Recorder {
 
     protected void onStart() {
         audioRecord.startRecording();
-        audioTrack.play();
+        //audioTrack.play();
     }
 
     protected void onStop() {
         audioRecord.stop();
-        audioTrack.stop();
+        //audioTrack.stop();
     }
 
     protected AudioData onNext() {

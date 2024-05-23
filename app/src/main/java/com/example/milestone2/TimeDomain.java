@@ -26,8 +26,8 @@ public class TimeDomain {
     }
 
 
-    public void setTimeChart(LineChart timeChart) {
-        this.timeChart = timeChart;
+    public void setTimeChart(LineChart tC) {
+        timeChart = tC;
         setupTimeChart();
     }
 
@@ -67,7 +67,6 @@ public class TimeDomain {
 
         XAxis xAxis = timeChart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setDrawGridLines(false);
         xAxis.setDrawGridLines(true);
         xAxis.setGridLineWidth(1f);
         xAxis.setGridColor(Color.GRAY);
@@ -90,6 +89,14 @@ public class TimeDomain {
 
         YAxis rightYAxis = timeChart.getAxisRight();
         rightYAxis.setDrawGridLines(false);
+
+        LineDataSet dataSet = new LineDataSet(timePlot, "SoundWave");
+        dataSet.setColor(Color.BLUE);
+        dataSet.setLineWidth(1f);
+        dataSet.setDrawCircles(false);
+        LineData lineData = new LineData(dataSet);
+
+        timeChart.setData(lineData);
         timeChart.invalidate();
     }
 
