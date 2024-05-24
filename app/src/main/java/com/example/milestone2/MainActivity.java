@@ -4,12 +4,14 @@ import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.media.ThumbnailUtils;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.BackgroundColorSpan;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -17,6 +19,7 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.example.milestone2.ml.MobileModelV2;
 import com.example.milestone2.types.ShortValues;
@@ -68,6 +71,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        findViewById(R.id.image1button).setBackgroundTintMode(PorterDuff.Mode.SRC_ATOP);
+        findViewById(R.id.image2button).setBackgroundTintMode(PorterDuff.Mode.SRC_ATOP);
+        findViewById(R.id.image3button).setBackgroundTintMode(PorterDuff.Mode.SRC_ATOP);
+        updateButtonColors(1);
+
         imageView = findViewById(R.id.imageView);
 
 
@@ -103,6 +111,56 @@ public class MainActivity extends AppCompatActivity {
             //pngfile = R.raw.br_19_1402_3;
             wavfile = R.raw.wlr_25_1403_3;
             pngfile = R.raw.lr_25_1403_3;
+        }
+    }
+
+    public void updateButtonColors(int showImage) {
+        Log.d("ButtonColors", "UpdateButtonColors called for image "+showImage);
+        int grayColor = ContextCompat.getColor(this, R.color.gray_button_color);
+        int lightGrayColor = ContextCompat.getColor(this, R.color.light_gray_button_color);
+
+        switch (showImage) {
+            case 1:
+                findViewById(R.id.image1button).setBackgroundTintList(ColorStateList.valueOf(grayColor));
+                findViewById(R.id.image2button).setBackgroundTintList(ColorStateList.valueOf(lightGrayColor));
+                findViewById(R.id.image3button).setBackgroundTintList(ColorStateList.valueOf(lightGrayColor));
+                break;
+            case 2:
+                findViewById(R.id.image1button).setBackgroundTintList(ColorStateList.valueOf(lightGrayColor));
+                findViewById(R.id.image2button).setBackgroundTintList(ColorStateList.valueOf(grayColor));
+                findViewById(R.id.image3button).setBackgroundTintList(ColorStateList.valueOf(lightGrayColor));
+                break;
+            case 3:
+                findViewById(R.id.image1button).setBackgroundTintList(ColorStateList.valueOf(lightGrayColor));
+                findViewById(R.id.image2button).setBackgroundTintList(ColorStateList.valueOf(lightGrayColor));
+                findViewById(R.id.image3button).setBackgroundTintList(ColorStateList.valueOf(grayColor));
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void onBtnIm1Clicked(View view) {
+        updateButtonColors(1);
+        if(validMeasurement(location)){
+            imageView.setImageBitmap(measurements[location*3].image);
+            imageView.invalidate();
+        }
+    }
+
+    public void onBtnIm2Clicked(View view) {
+        updateButtonColors(2);
+        if(validMeasurement(location)){
+            imageView.setImageBitmap(measurements[location*3+1].image);
+            imageView.invalidate();
+        }
+    }
+
+    public void onBtnIm3Clicked(View view) {
+        updateButtonColors(3);
+        if(validMeasurement(location)){
+            imageView.setImageBitmap(measurements[location*3+2].image);
+            imageView.invalidate();
         }
     }
 
@@ -142,9 +200,9 @@ public class MainActivity extends AppCompatActivity {
             measurement.setEpoch(i);
             measurements[i+location*3]=measurement;
             inputStream.close();
-            imageView.setImageBitmap(measurements[i+location*3].image);
-            imageView.invalidate();
         }
+        imageView.setImageBitmap(measurements[location*3].image);
+        imageView.invalidate();
         showResults();
 
         realtime.audioDSy.clear();

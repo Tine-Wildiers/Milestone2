@@ -4,6 +4,7 @@ import android.graphics.Color;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -80,9 +81,12 @@ public class TimeDomain {
         timeChart.setTouchEnabled(false);
         timeChart.getLegend().setEnabled(false);
         timeChart.getAxisRight().setDrawLabels(false);
+
+        timeChart.getAxisLeft().setDrawLabels(false);
+
         YAxis yAxis = timeChart.getAxisLeft();
-        yAxis.setAxisMinimum(-5000);
-        yAxis.setAxisMaximum(+5000);
+        yAxis.setAxisMinimum(-1500);
+        yAxis.setAxisMaximum(+1500);
         yAxis.setAxisLineWidth(2f);
         yAxis.setAxisLineColor(Color.BLACK);
         yAxis.setDrawGridLines(false);
@@ -100,7 +104,7 @@ public class TimeDomain {
         timeChart.invalidate();
     }
 
-    protected void updateTimeGraph(){
+    protected void updateTimeGraph(int timeindex){
 
         while (timePlot.size() > maxSize) {
             timePlot.remove(0);
@@ -113,6 +117,15 @@ public class TimeDomain {
         for (int i = 0; i < verticalGridLines.length; i++) {
             gridLinePositions[i] = verticalGridLines[i];
         }
+
+        XAxis xAxis = timeChart.getXAxis();
+        xAxis.removeAllLimitLines(); // Remove any existing limit lines
+
+        LimitLine limitLine = new LimitLine(timeindex, "");
+        limitLine.setLineColor(Color.RED);
+        limitLine.setLineWidth(2f);
+        xAxis.addLimitLine(limitLine);
+
         // Update dataSet
         LineDataSet dataSet = new LineDataSet(timePlot, "SoundWave");
         dataSet.setColor(Color.BLUE);

@@ -22,7 +22,7 @@ public class FrequencyDomain {
     }
 
     private final int spectogramXRes = 128;  //zou dan evenveel moeten tonen als time graph
-    private final int spectogramYRes = 16;
+    private final int spectogramYRes = 48;
     MyScatterDataSet spectrogramDS;
     List<Integer> colors = new ArrayList<>();
     int index;
@@ -71,29 +71,27 @@ public class FrequencyDomain {
         rightYAxis.setEnabled(false);
         spectrogramChart.setData(scatterData);
         spectrogramChart.invalidate();
+        spectrogramChart.getAxisLeft().setDrawLabels(false);
 
 
         spectrogramChart.buildDrawingCache();
     }
 
     public int updateSpectrogram(double[] downScaledArray, int ind){
-        int movingInd = ind;
-        for (int i = 0; i < spectogramYRes; i++) {
-
-            // --- old version ---
-            //int color = Color.HSVToColor(new float[]{(float) interpolateHue(downScaledArray[i]), 1f, 1f});
-
-            // --- new version ---
-            index = Math.min((int) ((downScaledArray[i] +50) * cM.getColorMapperSize() / 100f), cM.getColorMapperSize() - 1);
-            int color = cM.getColor(index);
-
-            colors.add(movingInd, color);
-            movingInd+=1;
-        }
-
         while(colors.size() > spectogramYRes*spectogramXRes){
             colors.remove(spectogramYRes*spectogramXRes);
         }
+
+        int movingInd = ind;
+        for (int i = 0; i < spectogramYRes; i++) {
+            index = Math.min((int) ((downScaledArray[i] +50) * cM.getColorMapperSize() / 100f), cM.getColorMapperSize() - 1);
+            int color = cM.getColor(index);
+
+            colors.set(movingInd, color);
+            movingInd+=1;
+        }
+
+
         return movingInd;
     }
 

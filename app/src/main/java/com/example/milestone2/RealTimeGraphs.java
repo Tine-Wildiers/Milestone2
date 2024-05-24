@@ -8,6 +8,7 @@ import com.example.milestone2.types.DoubleValues;
 import com.example.milestone2.types.ShortValues;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.charts.ScatterChart;
+import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.trello.rxlifecycle3.android.FragmentEvent;
 import com.trello.rxlifecycle3.android.RxLifecycleAndroid;
@@ -63,7 +64,7 @@ public class RealTimeGraphs {
                 timeDomain.timePlot.set(timeindex+7, new Entry(timeindex +7, (float) audioData.yData.get(1792)));
                 timeindex += 8;
 
-                timeDomain.updateTimeGraph();
+                timeDomain.updateTimeGraph(timeindex);
 
                 // ----- Update Frequency Plot -----
                 fft.run(audioData.yData, fftData);
@@ -120,7 +121,7 @@ public class RealTimeGraphs {
         //dataProvider.resetRecorder();
         dataProvider = new Recorder();
         timeDomain.resetTimePlot();
-        timeDomain.updateTimeGraph();
+        timeDomain.updateTimeGraph(0);
         //frequencyDomain = new FrequencyDomain();
     }
 
