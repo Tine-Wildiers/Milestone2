@@ -3,6 +3,7 @@ package com.example.milestone2;
 import android.graphics.Color;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
@@ -10,9 +11,12 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -21,6 +25,7 @@ public class TimeDomain {
     private LineChart timeChart;
     private final int sampleRate;
     private final int maxSize = 1000; //In setup method nog aanpassing nodig als ge deze naar 2000 doet bvb.
+    private int zoomLevel = 1500;
 
     public TimeDomain(int sampleRate) {
         this.sampleRate = sampleRate;
@@ -33,37 +38,10 @@ public class TimeDomain {
     }
 
     public void setupTimeChart(){
-        /*
-        //int[] verticalGridLines = getVerticalGridLineLocations(sampleRate, -256000*2, -256000 + maxSize * 256); als ge maxSize verdubbelt
-        int[] verticalGridLines = getVerticalGridLineLocations(sampleRate, -256000, -256000 + maxSize * 256);
-        float[] gridLinePositions = new float[verticalGridLines.length];
-        for (int i = 0; i < verticalGridLines.length; i++) {
-            gridLinePositions[i] = verticalGridLines[i];
-        }
-
-        //int i = -256000*2;
-        int i = -256000;
-        while (timePlot.size() !=  maxSize) {
-            timePlot.add(new Entry(i, 0.0f));
-            i+= 256;
-        }
-
-        // Calculate the duration of each sample in seconds
-        double sampleDurationInSeconds = 1.0 / sampleRate;
-
-        // Calculate the time values for each grid line
-        List<String> timeLabels = new ArrayList<>();
-        for (float gridLinePosition : gridLinePositions) {
-            double timeInSeconds = gridLinePosition * sampleDurationInSeconds;
-            timeLabels.add(String.format(Locale.getDefault(), "%.2f", timeInSeconds));
-        }
-
-         */
-
         int i = 0;
-        while (timePlot.size() !=  maxSize) {
+        while (timePlot.size() != maxSize) {
             timePlot.add(new Entry(i, 0.0f));
-            i+= 1;
+            i += 1;
         }
 
         XAxis xAxis = timeChart.getXAxis();
@@ -71,9 +49,22 @@ public class TimeDomain {
         xAxis.setDrawGridLines(true);
         xAxis.setGridLineWidth(1f);
         xAxis.setGridColor(Color.GRAY);
-        xAxis.setGranularity(1f);
-        xAxis.setGranularityEnabled(true);
-        //xAxis.setValueFormatter(new IndexAxisValueFormatter(timeLabels));
+        xAxis.setGranularityEnabled(true); // Enable granularity
+        xAxis.setGranularity(344f);
+
+        // Set custom labels for gridlines
+        xAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                if (value == 344f) {
+                    return "2"; // Label for 344
+                } else if (value == 688f) {
+                    return "4"; // Label for 688
+                } else {
+                    return ""; // Hide labels for other gridlines
+                }
+            }
+        });
 
         Description description = new Description();
         description.setEnabled(false);
@@ -85,8 +76,8 @@ public class TimeDomain {
         timeChart.getAxisLeft().setDrawLabels(false);
 
         YAxis yAxis = timeChart.getAxisLeft();
-        yAxis.setAxisMinimum(-1500);
-        yAxis.setAxisMaximum(+1500);
+        yAxis.setAxisMinimum(-zoomLevel);
+        yAxis.setAxisMaximum(+zoomLevel);
         yAxis.setAxisLineWidth(2f);
         yAxis.setAxisLineColor(Color.BLACK);
         yAxis.setDrawGridLines(false);
@@ -102,20 +93,13 @@ public class TimeDomain {
 
         timeChart.setData(lineData);
         timeChart.invalidate();
+
     }
 
     protected void updateTimeGraph(int timeindex){
 
         while (timePlot.size() > maxSize) {
             timePlot.remove(0);
-        }
-        // Set a gridline for each second that passes
-        int firstIndex = (int) timePlot.get(0).getX();
-        int lastIndex = (int) timePlot.get(timePlot.size() - 1).getX();
-        int[] verticalGridLines = getVerticalGridLineLocations(sampleRate, firstIndex, lastIndex);
-        float[] gridLinePositions = new float[verticalGridLines.length];
-        for (int i = 0; i < verticalGridLines.length; i++) {
-            gridLinePositions[i] = verticalGridLines[i];
         }
 
         XAxis xAxis = timeChart.getXAxis();
@@ -163,4 +147,19 @@ public class TimeDomain {
         return maxSize;
     }
 
+    public void zoomIn(){
+        zoomLevel -= 200;
+        YAxis yAxis = timeChart.getAxisLeft();
+        yAxis.setAxisMinimum(-zoomLevel);
+        yAxis.setAxisMaximum(+zoomLevel);
+        timeChart.invalidate();
+    }
+
+    public void zoomOut(){
+        zoomLevel += 200;
+        YAxis yAxis = timeChart.getAxisLeft();
+        yAxis.setAxisMinimum(-zoomLevel);
+        yAxis.setAxisMaximum(+zoomLevel);
+        timeChart.invalidate();
+    }
 }

@@ -43,7 +43,6 @@ public class MelSpectrogram {
             }
         }
 
-        //TODO: inlezen in Parallel Colt voor optimalisatie van deze berekening.
         return melS; //Klopt
     }
 

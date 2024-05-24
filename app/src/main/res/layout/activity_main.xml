@@ -151,6 +151,45 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/zoomIn"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginStart="196dp"
+                    android:layout_marginTop="0dp"
+                    android:onClick="onBtnZoomInClicked"
+                    android:background="@drawable/roundbutton"
+                    android:gravity="center"
+                    android:padding="2dp"
+                    android:text="+"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/zoomOut"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginStart="196dp"
+                    android:layout_marginTop="0dp"
+                    android:background="@drawable/roundbutton"
+                    android:gravity="center"
+                    android:onClick="onBtnZoomOutClicked"
+                    android:padding="2dp"
+                    android:text="-"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/timechart"
                 android:layout_width="match_parent"

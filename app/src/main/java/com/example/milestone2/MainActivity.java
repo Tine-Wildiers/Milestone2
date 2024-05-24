@@ -164,6 +164,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void onBtnZoomInClicked(View view) {
+        realtime.zoom(0);
+    }
+
+    public void onBtnZoomOutClicked(View view) {
+        realtime.zoom(1);
+    }
+
     public void onBtnStartClicked(View view){
         if(!listening){
             listening = true;

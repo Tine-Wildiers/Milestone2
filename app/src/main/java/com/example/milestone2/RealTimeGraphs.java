@@ -125,5 +125,14 @@ public class RealTimeGraphs {
         //frequencyDomain = new FrequencyDomain();
     }
 
-
+    public void zoom(int mode){
+        if(mode==0){
+            timeDomain.zoomIn();
+            timeDomain.updateTimeGraph(timeindex);
+        }
+        else{
+            timeDomain.zoomOut();
+            timeDomain.updateTimeGraph(timeindex);
+        }
+    }
 }
