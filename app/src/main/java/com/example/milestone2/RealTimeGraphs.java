@@ -53,6 +53,7 @@ public class RealTimeGraphs {
                 */
                 if(timeindex > timeDomain.getMaxSize()-8){
                     timeindex = 0;
+                    timeDomain.updateFrameIndex();
                 }
                 timeDomain.timePlot.set(timeindex, new Entry(timeindex, (float) audioData.yData.getItemsArray()[0]));
                 timeDomain.timePlot.set(timeindex+1, new Entry(timeindex +1, (float) audioData.yData.get(256)));
@@ -122,6 +123,7 @@ public class RealTimeGraphs {
         dataProvider = new Recorder();
         timeDomain.resetTimePlot();
         timeDomain.updateTimeGraph(0);
+        frequencyDomain.resetFrequencyPlot();
         //frequencyDomain = new FrequencyDomain();
     }
 
@@ -134,5 +136,10 @@ public class RealTimeGraphs {
             timeDomain.zoomOut();
             timeDomain.updateTimeGraph(timeindex);
         }
+    }
+
+    public void resetIndices(){
+        timeindex = 0;
+        frequencyindex = 0;
     }
 }

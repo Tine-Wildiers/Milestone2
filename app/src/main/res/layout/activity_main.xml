@@ -211,30 +211,22 @@
         android:orientation="horizontal">
 
         <ImageView
+            android:id="@+id/yaxis"
+            android:layout_width="40dp"
+            android:layout_height="174dp"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="34dp"
+            android:src="@drawable/yaxis" />
+
+        <ImageView
             android:id="@+id/imageView"
             android:layout_width="181dp"
-            android:layout_height="174dp"
+            android:layout_height="175dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="34dp"
+            android:layout_marginStart="37dp"
+            android:layout_marginTop="33dp"
             android:contentDescription="TODO" />
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/image3button"
-            android:layout_width="34dp"
-            android:layout_height="34dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginStart="196dp"
-            android:layout_marginTop="157dp"
-            android:onClick="onBtnIm3Clicked"
-            android:background="@color/gray_button_color"
-            android:gravity="center"
-            android:padding="2dp"
-            android:text="3"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/image2button"
@@ -242,13 +234,29 @@
             android:layout_height="34dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:layout_marginStart="196dp"
+            android:layout_marginStart="226dp"
             android:layout_marginTop="101dp"
-            android:onClick="onBtnIm2Clicked"
             android:background="@color/gray_button_color"
             android:gravity="center"
+            android:onClick="onBtnIm2Clicked"
             android:padding="2dp"
             android:text="2"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/image3button"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="226dp"
+            android:layout_marginTop="157dp"
+            android:background="@color/gray_button_color"
+            android:gravity="center"
+            android:onClick="onBtnIm3Clicked"
+            android:padding="2dp"
+            android:text="3"
             android:textColor="#FFFFFF"
             android:textSize="16sp" />
 
@@ -258,11 +266,11 @@
             android:layout_height="34dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:layout_marginStart="196dp"
+            android:layout_marginStart="226dp"
             android:layout_marginTop="46dp"
-            android:onClick="onBtnIm1Clicked"
             android:background="@color/gray_button_color"
             android:gravity="center"
+            android:onClick="onBtnIm1Clicked"
             android:padding="2dp"
             android:text="1"
             android:textColor="#FFFFFF"

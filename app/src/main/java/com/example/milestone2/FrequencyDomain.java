@@ -114,4 +114,20 @@ public class FrequencyDomain {
     int getMaxSize(){
         return spectogramXRes*spectogramYRes;
     }
+
+    public void resetFrequencyPlot() {
+        List<Integer> newcolors = new ArrayList<>();
+        List<Entry> entries = new ArrayList<>();
+
+        for (int i = 0; i < spectogramXRes; i++) {
+            for (int j = 0; j < spectogramYRes; j++){
+                int color = cM.getColor(1);
+                newcolors.add(color);
+                entries.add(new Entry(i, j));
+            }
+        }
+
+        colors=newcolors;
+        renderSpectrogram();
+    }
 }

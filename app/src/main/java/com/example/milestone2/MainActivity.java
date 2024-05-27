@@ -191,8 +191,8 @@ public class MainActivity extends AppCompatActivity {
         handler.removeCallbacksAndMessages(null);
         realtime.dataProvider.setPaused(true);
         realtime.dataProvider.tryStop();
-
         realtime.dataProvider.resetAudioRecord();
+        realtime.resetIndices();
 
         String timeStamp = new SimpleDateFormat("yyyy_MM_dd_HH_mm", Locale.getDefault()).format(new Date());
 
