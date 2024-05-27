@@ -1,15 +1,19 @@
 package com.example.milestone2;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcelable;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -54,7 +58,7 @@ public class Results extends AppCompatActivity {
                     }
                 }
                 
-                showResults(getTV(i), getConf(i), ms[0], ms[1], ms[2]);
+                showResults(getTV(i), getConf(i), getDot(i), ms[0], ms[1], ms[2]);
             }
         }
     }
@@ -117,6 +121,33 @@ public class Results extends AppCompatActivity {
         }
     }
 
+    private AppCompatButton getDot(int location){
+        if(location==0){
+            return findViewById(R.id.dot0);
+        }
+        else if(location==1){
+            return findViewById(R.id.dot1);
+        }
+        else if(location==2){
+            return findViewById(R.id.dot2);
+        }
+        else if(location==3){
+            return findViewById(R.id.dot3);
+        }
+        else if(location==4){
+            return findViewById(R.id.dot4);
+        }
+        else if(location==5){
+            return findViewById(R.id.dot5);
+        }
+        else if(location==6){
+            return findViewById(R.id.dot6);
+        }
+        else{
+            return findViewById(R.id.dot7);
+        }
+    }
+
     private boolean validMeasurement(int location){
         int count = 0;
         for(Measurement measurement : measurements){
@@ -135,7 +166,7 @@ public class Results extends AppCompatActivity {
         }
     }
 
-    private void showResults(TextView result, TextView confidence, Measurement m1, Measurement m2, Measurement m3){
+    private void showResults(TextView result, TextView confidence, AppCompatButton dot, Measurement m1, Measurement m2, Measurement m3){
         String[] classes = {"0", "1", "2", "3"};
         float[] totalConfidences = new float[classes.length];
 
@@ -166,6 +197,7 @@ public class Results extends AppCompatActivity {
 
         // Set the result text to the most likely class
         result.setText(classes[maxPos]);
+        setDotColor(dot, maxPos);
 
         // Build the confidence text
         StringBuilder sb = new StringBuilder();
@@ -177,43 +209,6 @@ public class Results extends AppCompatActivity {
             sb.append(String.format(Locale.US, "%.1f%%", average));
         }
 
-        confidence.setText(sb.toString());
-    }
-
-    private void ssshowResults(TextView result, TextView confidence, Measurement m1, Measurement m2, Measurement m3){
-        String[] classes = {"0", "1", "2", "3"};
-
-        float[] confidences = m1.confidences;
-
-        int maxPos = 0;
-        int secondPos = 0;
-        float maxConfidence = 0;
-        float secondConfidence = 0;
-        for(int i = 0; i < confidences.length; i++) {
-            if (confidences[i] > maxConfidence) {
-                secondConfidence = maxConfidence;
-                secondPos = maxPos;
-                maxConfidence = confidences[i];
-                maxPos = i;
-            } else if (confidences[i] > secondConfidence) {
-                secondConfidence = confidences[i];
-                secondPos = i;
-            }
-        }
-        result.setText(classes[maxPos]);
-
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < classes.length; i++) {
-            if(i==maxPos){
-                String second = "";
-                float average = (m1.confidences[i] * 100 + m2.confidences[i] * 100 + m3.confidences[i] * 100)/3;
-                if(average<80){
-                    float saverage = (m1.confidences[secondPos] * 100 + m2.confidences[secondPos] * 100 + m3.confidences[secondPos] * 100)/3;
-                    second = String.format(Locale.US, "(%s -> %.1f%%)", classes[secondPos], saverage);
-                }
-                sb.append(String.format(Locale.US, "%.1f%%\n %s", average, second));
-            }
-        }
         confidence.setText(sb.toString());
     }
 
@@ -240,6 +235,23 @@ public class Results extends AppCompatActivity {
             outputStream.close();
         } catch (Throwable e) {
             e.printStackTrace();
+        }
+    }
+
+    private void setDotColor(AppCompatButton dot, int result){
+        int greenColor = ContextCompat.getColor(this, R.color.green_button_color);
+        int yellowColor = ContextCompat.getColor(this, R.color.yellow_button_color);
+        int orangeColor = ContextCompat.getColor(this, R.color.orange_button_color);
+        int redColor = ContextCompat.getColor(this, R.color.red_button_color);
+
+        if(result == 0){
+            dot.setBackgroundTintList(ColorStateList.valueOf(greenColor));
+        } else if (result==1) {
+            dot.setBackgroundTintList(ColorStateList.valueOf(yellowColor));
+        } else if (result==2) {
+            dot.setBackgroundTintList(ColorStateList.valueOf(orangeColor));
+        } else {
+            dot.setBackgroundTintList(ColorStateList.valueOf(redColor));
         }
     }
 }

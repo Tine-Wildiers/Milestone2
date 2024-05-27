@@ -206,9 +206,11 @@
     </LinearLayout>
 
     <RelativeLayout
+        android:id="@+id/mlresults"
         android:layout_width="match_parent"
         android:layout_height="218dp"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:visibility="invisible">
 
         <ImageView
             android:id="@+id/yaxis"

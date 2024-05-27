@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RadioButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -173,6 +174,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onBtnStartClicked(View view){
+        RelativeLayout relativeLayout = findViewById(R.id.mlresults);
+        relativeLayout.setVisibility(View.INVISIBLE);
         if(!listening){
             listening = true;
             realtime.startListening();
@@ -305,6 +308,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         confidence.setText(sb);
+        RelativeLayout relativeLayout = findViewById(R.id.mlresults);
+        relativeLayout.setVisibility(View.VISIBLE);
     }
 
     private void saveScatterChart() throws FileNotFoundException {

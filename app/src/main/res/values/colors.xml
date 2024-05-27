@@ -10,4 +10,8 @@
     <color name="background_color">#FFFFFFFF</color>
     <color name="gray_button_color">#A9A9A9</color>
     <color name="light_gray_button_color">#D3D3D3</color>
+    <color name="green_button_color">#4CAF50</color>
+    <color name="yellow_button_color">#FFEB3B</color>
+    <color name="orange_button_color">#FF9800</color>
+    <color name="red_button_color">#F44336</color>
 </resources>
