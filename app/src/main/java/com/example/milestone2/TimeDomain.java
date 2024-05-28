@@ -198,4 +198,7 @@ public class TimeDomain {
         }
     }
 
+    public void resetFrameIndex() {
+        index=0;
+    }
 }

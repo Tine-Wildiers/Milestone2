@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     int wavfile;
     int pngfile;
     int location = 0;
+    boolean firstTry = true;
 
     private RealTimeGraphs realtime;
     private ModelHandler modelHandler;
@@ -174,9 +175,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onBtnStartClicked(View view){
-        RelativeLayout relativeLayout = findViewById(R.id.mlresults);
-        relativeLayout.setVisibility(View.INVISIBLE);
         if(!listening){
+            if(!firstTry){
+                realtime.timeDomain.resetFrameIndex();
+                realtime.resetRealTimeGraphs();
+            }
             listening = true;
             realtime.startListening();
         }
@@ -190,33 +193,36 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onBtnStopClicked(View view) throws IOException {
-        listening = false;
-        handler.removeCallbacksAndMessages(null);
-        realtime.dataProvider.setPaused(true);
-        realtime.dataProvider.tryStop();
-        realtime.dataProvider.resetAudioRecord();
-        realtime.resetIndices();
+        if(listening==true){
+            firstTry = false;
+            listening = false;
+            handler.removeCallbacksAndMessages(null);
+            realtime.dataProvider.setPaused(true);
+            realtime.dataProvider.tryStop();
+            realtime.dataProvider.resetAudioRecord();
+            realtime.resetIndices();
 
-        String timeStamp = new SimpleDateFormat("yyyy_MM_dd_HH_mm", Locale.getDefault()).format(new Date());
+            String timeStamp = new SimpleDateFormat("yyyy_MM_dd_HH_mm", Locale.getDefault()).format(new Date());
 
-        ShortValues[] epochs = realtime.audioDSy.splitIntoThree();
-        File[] files = new File[3];
+            ShortValues[] epochs = realtime.audioDSy.splitIntoThree();
+            File[] files = new File[3];
 
-        for(int i = 0; i<3; i++){
-            files[i] = realtime.dataProvider.saveAudioToFile(timeStamp + "_" + i + ".wav", epochs[i]);
-            InputStream inputStream = new FileInputStream(files[i]);
-            Measurement measurement = modelHandler.preProcessImage(inputStream);
-            measurement.setWavFile(files[i]);
-            measurement.setLocation(location);
-            measurement.setEpoch(i);
-            measurements[i+location*3]=measurement;
-            inputStream.close();
+            for(int i = 0; i<3; i++){
+                files[i] = realtime.dataProvider.saveAudioToFile(timeStamp + "_" + i + ".wav", epochs[i]);
+                InputStream inputStream = new FileInputStream(files[i]);
+                Measurement measurement = modelHandler.preProcessImage(inputStream);
+                measurement.setWavFile(files[i]);
+                measurement.setLocation(location);
+                measurement.setEpoch(i);
+                measurements[i+location*3]=measurement;
+                inputStream.close();
+            }
+            imageView.setImageBitmap(measurements[location*3].image);
+            imageView.invalidate();
+            showResults();
+
+            realtime.audioDSy.clear();
         }
-        imageView.setImageBitmap(measurements[location*3].image);
-        imageView.invalidate();
-        showResults();
-
-        realtime.audioDSy.clear();
     }
 
     public void onBtnDLClicked(View view) throws IOException {
@@ -242,7 +248,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void onBtnNextLocClicked(View view) throws IOException {
         if(!listening) {
+            RelativeLayout relativeLayout = findViewById(R.id.mlresults);
+            relativeLayout.setVisibility(View.INVISIBLE);
+
             location += 1;
+            realtime.timeDomain.resetFrameIndex();
 
             if (validMeasurement(location - 1)) {
                 setRadioButtonColor(location - 1, Color.GREEN);
@@ -258,8 +268,6 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("measurements", measurements);
                 startActivity(intent);
             }
-
-            //TODO: audiofiles worden niet goed gesloten
 
             setRadioButtonColor(location, Color.BLUE);
             if (listening == false) {

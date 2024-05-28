@@ -68,8 +68,8 @@
                     android:layout_height="30dp"
                     android:layout_alignLeft="@id/backImage"
                     android:layout_alignTop="@id/backImage"
-                    android:layout_marginLeft="66dp"
-                    android:layout_marginTop="19dp"
+                    android:layout_marginLeft="70dp"
+                    android:layout_marginTop="3dp"
                     android:checked="true" />
 
                 <RadioButton
@@ -78,8 +78,8 @@
                     android:layout_height="30dp"
                     android:layout_alignLeft="@id/backImage"
                     android:layout_alignTop="@id/backImage"
-                    android:layout_marginLeft="100dp"
-                    android:layout_marginTop="19dp"
+                    android:layout_marginLeft="97dp"
+                    android:layout_marginTop="3dp"
                     android:checked="true" />
 
                 <RadioButton
@@ -88,8 +88,8 @@
                     android:layout_height="30dp"
                     android:layout_alignLeft="@id/backImage"
                     android:layout_alignTop="@id/backImage"
-                    android:layout_marginLeft="66dp"
-                    android:layout_marginTop="46dp"
+                    android:layout_marginLeft="70dp"
+                    android:layout_marginTop="39dp"
                     android:checked="true" />
 
                 <RadioButton
@@ -98,8 +98,8 @@
                     android:layout_height="30dp"
                     android:layout_alignLeft="@id/backImage"
                     android:layout_alignTop="@id/backImage"
-                    android:layout_marginLeft="100dp"
-                    android:layout_marginTop="46dp"
+                    android:layout_marginLeft="97dp"
+                    android:layout_marginTop="39dp"
                     android:checked="true" />
 
                 <RadioButton
@@ -108,8 +108,8 @@
                     android:layout_height="30dp"
                     android:layout_alignLeft="@id/backImage"
                     android:layout_alignTop="@id/backImage"
-                    android:layout_marginLeft="51dp"
-                    android:layout_marginTop="74dp"
+                    android:layout_marginLeft="49dp"
+                    android:layout_marginTop="86dp"
                     android:checked="true" />
 
                 <RadioButton
@@ -118,7 +118,7 @@
                     android:layout_height="30dp"
                     android:layout_alignLeft="@id/backImage"
                     android:layout_alignTop="@id/backImage"
-                    android:layout_marginLeft="73dp"
+                    android:layout_marginLeft="70dp"
                     android:layout_marginTop="75dp"
                     android:checked="true" />
 
@@ -128,7 +128,7 @@
                     android:layout_height="30dp"
                     android:layout_alignLeft="@id/backImage"
                     android:layout_alignTop="@id/backImage"
-                    android:layout_marginLeft="96dp"
+                    android:layout_marginLeft="97dp"
                     android:layout_marginTop="75dp"
                     android:checked="true" />
 
@@ -138,8 +138,8 @@
                     android:layout_height="30dp"
                     android:layout_alignLeft="@id/backImage"
                     android:layout_alignTop="@id/backImage"
-                    android:layout_marginLeft="118dp"
-                    android:layout_marginTop="75dp"
+                    android:layout_marginLeft="120dp"
+                    android:layout_marginTop="86dp"
                     android:checked="true" />
 
             </RelativeLayout>
