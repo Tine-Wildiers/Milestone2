@@ -39,7 +39,8 @@
                     android:layout_height="82dp"
                     android:layout_weight="1"
                     android:onClick="onBtnStopClicked"
-                    android:text="STOP" />
+                    android:text="STOP"
+                    android:textColor="@drawable/button_color"/>
 
                 <Button
                     android:id="@+id/btnClear"
