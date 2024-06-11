@@ -137,6 +137,7 @@ public class TimeDomain {
     }
 
     void resetTimePlot(){
+        index=0;
         timePlot = new ArrayList<>();
         //int i = -256000;
         int i = 0;
@@ -198,7 +199,4 @@ public class TimeDomain {
         }
     }
 
-    public void resetFrameIndex() {
-        index=0;
-    }
 }

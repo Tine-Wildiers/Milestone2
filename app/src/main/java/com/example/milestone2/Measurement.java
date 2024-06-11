@@ -31,7 +31,10 @@ public class Measurement implements Parcelable {
         this.epoch = epoch;
     }
 
-    public Measurement(Bitmap image, float[] confidences) {
+    public Measurement(Bitmap image, float[] confidences, File wavFile, int location, int epoch) {
+        setWavFile(wavFile);
+        setLocation(location);
+        setEpoch(epoch);
         this.image = image;
         this.confidences = confidences;
         int maxPos = 0;

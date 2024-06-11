@@ -18,6 +18,7 @@ import com.example.milestone2.readers.WavFileReader;
 import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -51,7 +52,8 @@ public class ModelHandler extends AppCompatActivity {
         return confidences;
     }
 
-    public void preProcessImage(float[] audioData){
+    public void processImage(float[] audioData){
+
         MelSpectrogram melSpectrogram = new MelSpectrogram();
         float[][] melspec = melSpectrogram.process(audioData);
 
@@ -104,7 +106,7 @@ public class ModelHandler extends AppCompatActivity {
         }
     }
 
-    public Measurement preProcessImage(InputStream inputStream) throws IOException {
+    public Measurement processImage(InputStream inputStream, File wavFile, int location, int epoch) throws IOException {
         float[] audioData = WavFileReader.readWavFile(inputStream);
 
         MelSpectrogram melSpectrogram = new MelSpectrogram();
@@ -149,7 +151,7 @@ public class ModelHandler extends AppCompatActivity {
 
         try {
             float[] confidences = classifySound(image, MobileModelV2.newInstance(context));
-            return new Measurement(image, confidences);
+            return new Measurement(image, confidences, wavFile, location, epoch);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

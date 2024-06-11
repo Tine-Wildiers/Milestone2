@@ -1,5 +1,6 @@
 package com.example.milestone2.helpers;
 
+import android.annotation.SuppressLint;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioRecord;
@@ -19,21 +20,51 @@ import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
 
 public class Recorder {
-
     protected Observable<AudioData> dataObservable;
+    public AudioTrack audioTrack;
+    private final AudioRecord audioRecord;
+    private final AudioData audioData; //Always stores the most recently recorded data
+
+    private final int sampleRate = 44100;
+    private final int minBufferSize = 2048;
     private volatile boolean isStarted = false;
     public volatile boolean isPaused = false;
-    public AudioTrack audioTrack;
 
-    private final int sampleRate;
-    private final int minBufferSize;
+    @SuppressLint("MissingPermission")
+    public Recorder() {
+        dataObservable = Observable.interval(sampleRate / minBufferSize, TimeUnit.MILLISECONDS)
+                .map( l -> onNext())
+                .doOnError(throwable -> Log.e("recorder", "onError", throwable))
+                .doOnSubscribe(disposable -> tryStart())
+                .doOnTerminate(this::tryStop)
+                .doOnDispose(this::tryStop)
+                .subscribeOn(Schedulers.single())
+                .filter(__ -> !isPaused);
 
-    private AudioRecord audioRecord;
-    private AudioData audioData;
+        this.audioRecord = new AudioRecord(1, sampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, minBufferSize);
+        this.audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
+                sampleRate,
+                AudioFormat.CHANNEL_OUT_MONO,
+                AudioFormat.ENCODING_PCM_16BIT,
+                minBufferSize,
+                AudioTrack.MODE_STREAM);
+        this.audioData = new AudioData(minBufferSize);
 
-    private FakeRecorder fakeRecorder = new FakeRecorder();
+        if(this.audioRecord.getState() != AudioRecord.STATE_INITIALIZED) {
+            throw new UnsupportedOperationException("This devices doesn't support AudioRecord");
+        }
 
-    private long time = 0L;
+    }
+
+    protected void onStart() {
+        audioRecord.startRecording();
+        audioTrack.play();
+    }
+
+    protected void onStop() {
+        audioRecord.stop();
+        audioTrack.stop();
+    }
 
     public void tryStop() {
         if(!isStarted)return;
@@ -63,82 +94,14 @@ public class Recorder {
         isPaused = false;
     }
 
-    public Recorder(int sampleRate, int minBufferSize) {
-        dataObservable = Observable.interval(sampleRate / minBufferSize, TimeUnit.MILLISECONDS)
-                .map( l -> onNext())
-                .doOnError(throwable -> Log.e("DataProvider", "onError", throwable))
-                .doOnSubscribe(disposable -> tryStart())
-                .doOnTerminate(this::tryStop)
-                .doOnDispose(this::tryStop)
-                .subscribeOn(Schedulers.single())
-                .filter(__ -> !isPaused);
-
-        this.sampleRate = sampleRate;
-        this.minBufferSize = minBufferSize;
-        this.audioRecord = new AudioRecord(1, sampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, minBufferSize);
-        this.audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
-                sampleRate,
-                AudioFormat.CHANNEL_OUT_MONO,
-                AudioFormat.ENCODING_PCM_16BIT,
-                minBufferSize,
-                AudioTrack.MODE_STREAM);
-        this.audioData = new AudioData(minBufferSize);
-
-        if(this.audioRecord.getState() != AudioRecord.STATE_INITIALIZED) {
-            throw new UnsupportedOperationException("This devices doesn't support AudioRecord");
-        }
-
-    }
-
-    public Recorder() {
-        this(44100, 2048);
-    }
-
-    protected void onStart() {
-        //fakeRecorder.onStop();
-        audioRecord.startRecording();
-        audioTrack.play();
-    }
-
-    protected void onStop() {
-        audioRecord.stop();
-        audioTrack.stop();
-        //fakeRecorder.onStart();
-    }
-
     protected AudioData onNext() {
+        //Audio data is read from the microphone and stored in audioData.yData.
         audioRecord.read(audioData.yData.getItemsArray(), 0, minBufferSize);
-
-        final long[] itemsArray = audioData.xData.getItemsArray();
-        for (int i = 0; i < minBufferSize; i++) {
-            itemsArray[i] = time++;
-        }
 
         audioTrack.write(audioData.yData.getItemsArray(), 0, minBufferSize);
 
         return audioData;
     }
-
-    public void resetRecorder(){
-        audioRecord.release();
-        audioRecord = new AudioRecord(1, sampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, minBufferSize);
-        audioData = new AudioData(minBufferSize);
-    }
-
-    public void resetAudioRecord() {
-        if (audioRecord != null) {
-            audioRecord.release(); // Release the existing AudioRecord instance
-        }
-
-        // Create a new AudioRecord instance
-        audioRecord = new AudioRecord(1, sampleRate,  AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, minBufferSize);
-        //audioData = new AudioData(minBufferSize);
-
-        //if(this.audioRecord.getState() != AudioRecord.STATE_INITIALIZED) {
-            //throw new UnsupportedOperationException("This devices doesn't support AudioRecord");
-        //}
-    }
-
 
     public int getBufferSize() {
         return minBufferSize;

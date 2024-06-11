@@ -35,6 +35,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -42,7 +43,6 @@ import java.util.Locale;
 import java.util.stream.IntStream;
 
 public class MainActivity extends AppCompatActivity {
-    int interval = 5;
     int wavfile;
     int pngfile;
     int location = 0;
@@ -50,12 +50,15 @@ public class MainActivity extends AppCompatActivity {
 
     private RealTimeGraphs realtime;
     private ModelHandler modelHandler;
-    private Measurement[] measurements = new Measurement[24];
+    private final Measurement[] measurements = new Measurement[24];
     private ColorMapper colorMapper;
 
     ImageView imageView;
     private boolean listening = false;
     private boolean calculating = false;
+
+    /*
+    int interval = 5;
     Handler handler = new Handler();
     Runnable saveScatterChartRunnable = new Runnable() {
         @Override
@@ -67,8 +70,9 @@ public class MainActivity extends AppCompatActivity {
             }
             handler.postDelayed(this, 5000);
         }
-    };
-
+    }
+    ;
+    */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,9 +82,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.image2button).setBackgroundTintMode(PorterDuff.Mode.SRC_ATOP);
         findViewById(R.id.image3button).setBackgroundTintMode(PorterDuff.Mode.SRC_ATOP);
         updateButtonColors(1);
-
         imageView = findViewById(R.id.imageView);
-
 
         colorMapper = null;
         try {
@@ -89,9 +91,7 @@ public class MainActivity extends AppCompatActivity {
             throw new RuntimeException(e);
         }
 
-
         realtime = new RealTimeGraphs(colorMapper,findViewById(R.id.timechart),findViewById(R.id.scatterchart));
-
         modelHandler = new ModelHandler(findViewById(R.id.result), findViewById(R.id.confidence), imageView, colorMapper, getApplicationContext());
 
         setRadioButtons();
@@ -99,7 +99,122 @@ public class MainActivity extends AppCompatActivity {
 
         wavfile = R.raw.w1403_lr_25;
         pngfile = R.raw.p1403_lr_25;
+    }
 
+    public void onBtnStartClicked(View view){
+        if(!listening){
+            if(!firstTry){
+                realtime.resetRealTimeGraphs();
+            }
+            listening = true;
+            //Startup van subscription start ook recording op via tryStart()
+            realtime.startListening();
+        }
+        else{
+            if(realtime.recorder.getPaused()){
+                realtime.recorder.setPaused(false);
+                realtime.recorder.tryStart();
+            }
+        }
+        //handler.postDelayed(saveScatterChartRunnable, interval*1000);
+    }
+
+    public void onBtnStopClicked(View view) throws IOException {
+        if(listening){
+            calculating = true;
+            firstTry = false;
+            listening = false;
+            //handler.removeCallbacksAndMessages(null);
+            
+            File[] files = realtime.finishMeasurement(location);
+
+            for(int i = 0; i<3; i++){
+                InputStream inputStream = Files.newInputStream(files[i].toPath());
+                
+                Measurement measurement = modelHandler.processImage(inputStream, files[i], location, i);
+                
+                inputStream.close();
+                measurements[i+location*3]=measurement;
+            }
+            imageView.setImageBitmap(measurements[location*3].image);
+            imageView.invalidate();
+            showResults();
+
+            calculating = false;
+        }
+    }
+
+
+    public void onBtnNextLocClicked(View view) throws IOException {
+        if(!listening && !calculating) {
+            RelativeLayout relativeLayout = findViewById(R.id.mlresults);
+            relativeLayout.setVisibility(View.INVISIBLE);
+
+            location += 1;
+
+            if (validMeasurement(location - 1)) {
+                setRadioButtonColor(location - 1, Color.GREEN);
+            } else {
+                setRadioButtonColor(location - 1, Color.BLACK);
+            }
+
+            if (location == 7) {
+                Button button = findViewById(R.id.btnClear);
+                button.setText("Go To Report");
+            } else if (location == 8) {
+                Intent intent = new Intent(MainActivity.this, Results.class);
+                intent.putExtra("measurements", measurements);
+                startActivity(intent);
+            }
+
+            setRadioButtonColor(location, Color.BLUE);
+
+            realtime.resetRealTimeGraphs();
+        }
+    }
+
+    private void showResults(){
+        String[] classes = {"0", "1", "2", "3"};
+        Measurement m1 = measurements[location*3];
+        Measurement m2 = measurements[location*3+1];
+        Measurement m3 = measurements[location*3+2];
+
+        // Averaging the confidences
+        float[] averageConfidences = new float[classes.length];
+        for (int i = 0; i < classes.length; i++) {
+            averageConfidences[i] = (m1.confidences[i] + m2.confidences[i] + m3.confidences[i]) / 3.0f;
+        }
+
+        int maxPos = 0;
+        float maxConfidence = 0;
+        for (int i = 0; i < averageConfidences.length; i++) {
+            if (averageConfidences[i] > maxConfidence) {
+                maxConfidence = averageConfidences[i];
+                maxPos = i;
+            }
+        }
+
+        TextView result = findViewById(R.id.result);
+        TextView confidence = findViewById(R.id.confidence);
+        result.setText(classes[maxPos]);
+
+        // Create the confidence string for each class
+        SpannableStringBuilder sb = new SpannableStringBuilder();
+        sb.append(String.format("%-10s %-10s %-10s %-10s\n", "Class", "Breath 1", "Breath 2", "Breath 3"));
+        sb.append("--------------------------------------------------------------\n");
+        for (int i = 0; i < classes.length; i++) {
+            String row = String.format(Locale.US, "%-13s %-14.1f %-14.1f %-14.1f\n", classes[i],
+                    m1.confidences[i] * 100, m2.confidences[i] * 100, m3.confidences[i] * 100);
+            int start = sb.length();
+            sb.append(row);
+            int end = sb.length();
+            if (i == maxPos) {
+                sb.setSpan(new BackgroundColorSpan(Color.YELLOW), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+        }
+        confidence.setText(sb);
+        RelativeLayout relativeLayout = findViewById(R.id.mlresults);
+        relativeLayout.setVisibility(View.VISIBLE);
     }
 
     public void updateButtonColors(int showImage) {
@@ -160,67 +275,13 @@ public class MainActivity extends AppCompatActivity {
         realtime.zoom(1);
     }
 
-    public void onBtnStartClicked(View view){
-        if(!listening){
-            if(!firstTry){
-                realtime.timeDomain.resetFrameIndex();
-                realtime.resetRealTimeGraphs();
-            }
-            listening = true;
-            realtime.startListening();
-        }
-        else{
-            if(realtime.dataProvider.getPaused()){
-                realtime.dataProvider.setPaused(false);
-                realtime.dataProvider.tryStart();
-            }
-        }
-        handler.postDelayed(saveScatterChartRunnable, interval*1000);
-    }
-
-    public void onBtnStopClicked(View view) throws IOException {
-        if(listening==true){
-            calculating = true;
-            firstTry = false;
-            listening = false;
-            handler.removeCallbacksAndMessages(null);
-            realtime.dataProvider.setPaused(true);
-            realtime.dataProvider.tryStop();
-            realtime.dataProvider.resetAudioRecord();
-            realtime.resetIndices();
-
-            String timeStamp = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.getDefault()).format(new Date());
-
-            realtime.dataProvider.saveAudioToFile(timeStamp + "_loc_" + location + ".wav", realtime.audioDSy);
-
-            ShortValues[] epochs = realtime.audioDSy.splitIntoThree();
-            File[] files = new File[3];
-
-            for(int i = 0; i<3; i++){
-                files[i] = realtime.dataProvider.saveAudioToFile(timeStamp + "_" + i + ".wav", epochs[i]);
-                InputStream inputStream = new FileInputStream(files[i]);
-                Measurement measurement = modelHandler.preProcessImage(inputStream);
-                measurement.setWavFile(files[i]);
-                measurement.setLocation(location);
-                measurement.setEpoch(i);
-                measurements[i+location*3]=measurement;
-                inputStream.close();
-            }
-            imageView.setImageBitmap(measurements[location*3].image);
-            imageView.invalidate();
-            showResults();
-
-            realtime.audioDSy.clear();
-            calculating = false;
-        }
-    }
-
+    /*
     public void onBtnDLClicked(View view) throws IOException {
 
         //onBtnTestModelClicked(view);
 
         InputStream inputStream = getResources().openRawResource(wavfile);
-        Measurement m = modelHandler.preProcessImage(inputStream);
+        Measurement m = modelHandler.processImage(inputStream);
         Log.d("Model Testing", "Confidences WAV: " + Arrays.toString(m.confidences));
 
         saveBitmapAsPng(m.image, "preprocessingExample.png");
@@ -228,9 +289,8 @@ public class MainActivity extends AppCompatActivity {
         RelativeLayout relativeLayout = findViewById(R.id.mlresults);
         relativeLayout.setVisibility(View.VISIBLE);
         imageView.setImageBitmap(m.image);
-
-
     }
+     */
 
     public void onBtnTestModelClicked(View view){
         int imageSize = 224;
@@ -248,105 +308,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void onBtnNextLocClicked(View view) throws IOException {
-        if(!listening && !calculating) {
-            RelativeLayout relativeLayout = findViewById(R.id.mlresults);
-            relativeLayout.setVisibility(View.INVISIBLE);
-
-            location += 1;
-            realtime.timeDomain.resetFrameIndex();
-
-            if (validMeasurement(location - 1)) {
-                setRadioButtonColor(location - 1, Color.GREEN);
-            } else {
-                setRadioButtonColor(location - 1, Color.BLACK);
-            }
-
-            if (location == 7) {
-                Button button = findViewById(R.id.btnClear);
-                button.setText("Go To Report");
-            } else if (location == 8) {
-                Intent intent = new Intent(MainActivity.this, Results.class);
-                intent.putExtra("measurements", measurements);
-                startActivity(intent);
-            }
-
-            setRadioButtonColor(location, Color.BLUE);
-            if (listening == false) {
-                realtime.resetRealTimeGraphs();
-            }
-        }
-    }
-
-    private void showResults(){
-        String[] classes = {"0", "1", "2", "3"};
-        Measurement m1 = measurements[location*3];
-        Measurement m2 = measurements[location*3+1];
-        Measurement m3 = measurements[location*3+2];
-
-        // Averaging the confidences
-        float[] averageConfidences = new float[classes.length];
-        for (int i = 0; i < classes.length; i++) {
-            averageConfidences[i] = (m1.confidences[i] + m2.confidences[i] + m3.confidences[i]) / 3.0f;
-        }
-
-        int maxPos = 0;
-        float maxConfidence = 0;
-        for (int i = 0; i < averageConfidences.length; i++) {
-            if (averageConfidences[i] > maxConfidence) {
-                maxConfidence = averageConfidences[i];
-                maxPos = i;
-            }
-        }
-
-        TextView result = findViewById(R.id.result);
-        TextView confidence = findViewById(R.id.confidence);
-        result.setText(classes[maxPos]);
-
-        // Create the confidence string for each class
-        SpannableStringBuilder sb = new SpannableStringBuilder();
-        sb.append(String.format("%-10s %-10s %-10s %-10s\n", "Class", "Breath 1", "Breath 2", "Breath 3"));
-        sb.append("--------------------------------------------------------------\n");
-        for (int i = 0; i < classes.length; i++) {
-            String row = String.format(Locale.US, "%-13s %-14.1f %-14.1f %-14.1f\n", classes[i],
-                    m1.confidences[i] * 100, m2.confidences[i] * 100, m3.confidences[i] * 100);
-            int start = sb.length();
-            sb.append(row);
-            int end = sb.length();
-            if (i == maxPos) {
-                sb.setSpan(new BackgroundColorSpan(Color.YELLOW), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            }
-        }
-        confidence.setText(sb);
-        RelativeLayout relativeLayout = findViewById(R.id.mlresults);
-        relativeLayout.setVisibility(View.VISIBLE);
-    }
-
     private void saveScatterChart() throws FileNotFoundException {
         ScatterChart chart = findViewById(R.id.scatterchart);
         String timeStamp = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.getDefault()).format(new Date());
         chart.saveToPath("Melspectrogram"+timeStamp, "/DCIM/Melspectrograms");
-
-        /*
-        //TODO: stap overslagen van file aan te maken, de audioDSy array direct gebruiken voor voorspelling.
-        //String fileName = timeStamp + ".wav";
-        //File file = realtime.dataProvider.saveAudioToFile(fileName, realtime.audioDSy);
-
-        short[] shortArray = realtime.audioDSy.getItemsArray();
-        double[] doubleArray = IntStream.range(0, shortArray.length)
-                .mapToDouble(i -> shortArray[i])
-                .toArray();
-
-        float[] floatArray = new float[shortArray.length];
-        for (int i = 0; i < shortArray.length; i++) {
-            floatArray[i] = (float) doubleArray[i];
-        }
-
-        //InputStream inputStream = new FileInputStream(file);
-        modelHandler.preProcessImage(floatArray);
-        realtime.audioDSy.clear();
-
-         */
     }
 
     private void setRadioButtons(){
@@ -405,11 +370,8 @@ public class MainActivity extends AppCompatActivity {
                 radioButton = findViewById(R.id.loc7);
                 break;
             default:
-                // Handle if location is out of range
                 return;
         }
-
-        // Set the color for the RadioButton
         ColorStateList colorStateList = ColorStateList.valueOf(color);
         radioButton.setButtonTintList(colorStateList);
     }
@@ -433,10 +395,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void saveBitmapAsPng(Bitmap bitmap, String fileName) {
-
         File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
         File stethoscopeDataDirectory = new File(directory, "StethoscopeData");
-
         File file = new File(stethoscopeDataDirectory, fileName);
 
         try {
