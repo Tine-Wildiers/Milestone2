@@ -24,8 +24,6 @@ import io.reactivex.subjects.BehaviorSubject;
 public class RealTimeGraphs {
     Recorder recorder = new Recorder();
     private final BehaviorSubject<Boolean> isPaused = BehaviorSubject.createDefault(false);
-    private Disposable audioSubscription;
-
     private final BehaviorSubject<FragmentEvent> lifecycleSubject = BehaviorSubject.create();
     private final Radix2FFT fft = new Radix2FFT(recorder.getBufferSize());
     private final int sampleRate = recorder.getSampleRate();
@@ -44,42 +42,41 @@ public class RealTimeGraphs {
     }
 
     protected void startListening() {
-        audioSubscription = recorder.getData()
+        Disposable audioSubscription = recorder.getData()
                 .filter(audioData -> !isPaused.getValue())
                 .doOnNext(audioData -> {
                     try {
                         rawData.add(audioData.yData.getItemsArray());
 
                         // ----- Update Time Plot -----
-                        if(timeindex > timeDomain.getMaxSize()-8){
+                        if (timeindex > timeDomain.getMaxSize() - 8) {
                             timeindex = 0;
                             timeDomain.updateFrameIndex();
                         }
                         timeDomain.timePlot.set(timeindex, new Entry(timeindex, (float) audioData.yData.getItemsArray()[0]));
-                        timeDomain.timePlot.set(timeindex+1, new Entry(timeindex +1, (float) audioData.yData.get(256)));
-                        timeDomain.timePlot.set(timeindex+2, new Entry(timeindex +2, (float) audioData.yData.get(512)));
-                        timeDomain.timePlot.set(timeindex+3, new Entry(timeindex +3, (float) audioData.yData.get(768)));
-                        timeDomain.timePlot.set(timeindex+4, new Entry(timeindex +4, (float) audioData.yData.get(1024)));
-                        timeDomain.timePlot.set(timeindex+5, new Entry(timeindex +5, (float) audioData.yData.get(1280)));
-                        timeDomain.timePlot.set(timeindex+6, new Entry(timeindex +6, (float) audioData.yData.get(1536)));
-                        timeDomain.timePlot.set(timeindex+7, new Entry(timeindex +7, (float) audioData.yData.get(1792)));
+                        timeDomain.timePlot.set(timeindex + 1, new Entry(timeindex + 1, (float) audioData.yData.get(256)));
+                        timeDomain.timePlot.set(timeindex + 2, new Entry(timeindex + 2, (float) audioData.yData.get(512)));
+                        timeDomain.timePlot.set(timeindex + 3, new Entry(timeindex + 3, (float) audioData.yData.get(768)));
+                        timeDomain.timePlot.set(timeindex + 4, new Entry(timeindex + 4, (float) audioData.yData.get(1024)));
+                        timeDomain.timePlot.set(timeindex + 5, new Entry(timeindex + 5, (float) audioData.yData.get(1280)));
+                        timeDomain.timePlot.set(timeindex + 6, new Entry(timeindex + 6, (float) audioData.yData.get(1536)));
+                        timeDomain.timePlot.set(timeindex + 7, new Entry(timeindex + 7, (float) audioData.yData.get(1792)));
                         timeindex += 8;
 
                         timeDomain.updateTimeGraph(timeindex);
 
                         // ----- Update Frequency Plot -----
                         fft.run(audioData.yData, fftData);
-                        //updateFrequencyGraph();
 
                         // ----- Update Spectrogram Plot -----
-                        if(frequencyindex > frequencyDomain.getMaxSize()-1){
+                        if (frequencyindex > frequencyDomain.getMaxSize() - 1) {
                             frequencyindex = 0;
                         }
 
                         double[] downScaledArray = downscaleArray(frequencyDomain.getSpectogramYRes());
                         frequencyindex = frequencyDomain.updateSpectrogram(downScaledArray, frequencyindex);
 
-                        if(slowDown%3 == 0){
+                        if (slowDown % 3 == 0) {
                             frequencyDomain.renderSpectrogram();
                         }
 
@@ -112,10 +109,7 @@ public class RealTimeGraphs {
     }
 
     public File[] finishMeasurement(int location){
-        //Stop recording
-        //recorder.setPaused(true);
-        //recorder.tryStop();
-        
+
         //Store audio files per location
         String timeStamp = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.getDefault()).format(new Date());
         recorder.saveAudioToFile(timeStamp + "_loc_" + location + ".wav", rawData);

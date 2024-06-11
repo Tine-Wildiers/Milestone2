@@ -13,11 +13,14 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.BackgroundColorSpan;
 import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -53,26 +56,11 @@ public class MainActivity extends AppCompatActivity {
     private final Measurement[] measurements = new Measurement[24];
     private ColorMapper colorMapper;
 
+    boolean live = true;
+
     ImageView imageView;
     private boolean listening = false;
     private boolean calculating = false;
-
-    /*
-    int interval = 5;
-    Handler handler = new Handler();
-    Runnable saveScatterChartRunnable = new Runnable() {
-        @Override
-        public void run() {
-            try {
-                saveScatterChart();
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-            handler.postDelayed(this, 5000);
-        }
-    }
-    ;
-    */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +88,15 @@ public class MainActivity extends AppCompatActivity {
         wavfile = R.raw.w1403_lr_25;
         pngfile = R.raw.p1403_lr_25;
 
+        Switch switch1 = findViewById(R.id.switch1);
+        switch1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                live = !isChecked;
+                switch1.setEnabled(false);
+            }
+        });
+
         realtime.pause();
         realtime.startListening();
     }
@@ -110,8 +107,6 @@ public class MainActivity extends AppCompatActivity {
                 realtime.resetRealTimeGraphs();
             }
             listening = true;
-            //Startup van subscription start ook recording op via tryStart()
-            //realtime.startListening();
             realtime.resume();
         }
         else{
@@ -120,7 +115,6 @@ public class MainActivity extends AppCompatActivity {
                 realtime.recorder.tryStart();
             }
         }
-        //handler.postDelayed(saveScatterChartRunnable, interval*1000);
     }
 
     public void onBtnStopClicked(View view) throws IOException {
@@ -129,21 +123,26 @@ public class MainActivity extends AppCompatActivity {
             calculating = true;
             firstTry = false;
             listening = false;
-            //handler.removeCallbacksAndMessages(null);
-            
             File[] files = realtime.finishMeasurement(location);
 
             for(int i = 0; i<3; i++){
-                InputStream inputStream = Files.newInputStream(files[i].toPath());
-                
-                Measurement measurement = modelHandler.processImage(inputStream, files[i], location, i);
-                
-                inputStream.close();
-                measurements[i+location*3]=measurement;
+                Measurement measurement = new Measurement(files[i], location, i);
+                if(live){
+                    InputStream inputStream = Files.newInputStream(files[i].toPath());
+                    Pair<float[], Bitmap> result = modelHandler.processImage(inputStream);
+                    float[] confidences = result.first;
+                    Bitmap image = result.second;
+                    inputStream.close();
+                    measurement.setResult(image, confidences);
+                }
+                measurements[i+location*3]= measurement;
             }
-            imageView.setImageBitmap(measurements[location*3].image);
-            imageView.invalidate();
-            showResults();
+
+            if(live){
+                imageView.setImageBitmap(measurements[location*3].image);
+                imageView.invalidate();
+                showResults();
+            }
 
             calculating = false;
         }
@@ -167,6 +166,19 @@ public class MainActivity extends AppCompatActivity {
                 Button button = findViewById(R.id.btnClear);
                 button.setText("Go To Report");
             } else if (location == 8) {
+                if(!live){
+                    for(Measurement m : measurements){
+                        if(m!= null && m.confidences == null){
+                            InputStream inputStream = Files.newInputStream(m.wavFile.toPath());
+                            Pair<float[], Bitmap> result = modelHandler.processImage(inputStream);
+                            float[] confidences = result.first;
+                            Bitmap image = result.second;
+                            inputStream.close();
+                            m.setResult(image, confidences);
+                        }
+                    }
+                }
+
                 Intent intent = new Intent(MainActivity.this, Results.class);
                 intent.putExtra("measurements", measurements);
                 startActivity(intent);
@@ -280,47 +292,8 @@ public class MainActivity extends AppCompatActivity {
         realtime.zoom(1);
     }
 
-    /*
-    public void onBtnDLClicked(View view) throws IOException {
-
-        //onBtnTestModelClicked(view);
-
-        InputStream inputStream = getResources().openRawResource(wavfile);
-        Measurement m = modelHandler.processImage(inputStream);
-        Log.d("Model Testing", "Confidences WAV: " + Arrays.toString(m.confidences));
-
-        saveBitmapAsPng(m.image, "preprocessingExample.png");
-
-        RelativeLayout relativeLayout = findViewById(R.id.mlresults);
-        relativeLayout.setVisibility(View.VISIBLE);
-        imageView.setImageBitmap(m.image);
-    }
-     */
-
     public void onBtnTestClicked(View view){
         realtime.pause();
-    }
-
-    public void onBtnTestModelClicked(View view){
-        int imageSize = 224;
-        InputStream inputStream = getResources().openRawResource(pngfile);
-        Bitmap image = BitmapFactory.decodeStream(inputStream);
-        int dimension = Math.min(image.getWidth(), image.getHeight());
-        image = ThumbnailUtils.extractThumbnail(image, dimension, dimension);
-        image = Bitmap.createScaledBitmap(image, imageSize, imageSize, false);
-
-        try {
-            float[] confidences = modelHandler.classifySound(image, MobileModelV2.newInstance(getApplicationContext()));
-            Log.d("Model Testing", "Confidences PNG: " + Arrays.toString(confidences));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void saveScatterChart() throws FileNotFoundException {
-        ScatterChart chart = findViewById(R.id.scatterchart);
-        String timeStamp = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.getDefault()).format(new Date());
-        chart.saveToPath("Melspectrogram"+timeStamp, "/DCIM/Melspectrograms");
     }
 
     private void setRadioButtons(){
@@ -403,18 +376,4 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void saveBitmapAsPng(Bitmap bitmap, String fileName) {
-        File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
-        File stethoscopeDataDirectory = new File(directory, "StethoscopeData");
-        File file = new File(stethoscopeDataDirectory, fileName);
-
-        try {
-            FileOutputStream outputStream = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream); // 100 for full quality
-            outputStream.flush();
-            outputStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 }

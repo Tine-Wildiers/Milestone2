@@ -50,11 +50,13 @@ public class Measurement implements Parcelable {
         this.classification = classes[maxPos];
     }
 
-    // Parcelable implementation
+    public Measurement(File wavFile, int location, int epoch) {
+        setWavFile(wavFile);
+        setLocation(location);
+        setEpoch(epoch);
+    }
+
     protected Measurement(Parcel in) {
-        //byte[] byteArray = new byte[in.readInt()];
-        //in.readByteArray(byteArray);
-        //image = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
         classification = in.readString();
         confidences = in.createFloatArray();
         wavFile = (File) in.readSerializable();
@@ -62,13 +64,24 @@ public class Measurement implements Parcelable {
         epoch = in.readInt();
     }
 
+    public void setResult(Bitmap image, float[] confidences){
+        this.image = image;
+        this.confidences = confidences;
+        int maxPos = 0;
+        float maxConfidence = 0;
+        for(int i = 0; i < confidences.length; i++){
+            if(confidences[i] > maxConfidence){
+                maxConfidence = confidences[i];
+                maxPos = i;
+            }
+        }
+        String[] classes = {"0", "1", "2", "3"};
+
+        this.classification = classes[maxPos];
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        //ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        //image.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        //byte[] byteArray = stream.toByteArray();
-        //dest.writeInt(byteArray.length);
-        //dest.writeByteArray(byteArray);
         dest.writeString(classification);
         dest.writeFloatArray(confidences);
         dest.writeSerializable(wavFile);

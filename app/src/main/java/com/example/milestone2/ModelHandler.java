@@ -6,6 +6,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.media.ThumbnailUtils;
 import android.util.Log;
+import android.util.Pair;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -52,61 +53,7 @@ public class ModelHandler extends AppCompatActivity {
         return confidences;
     }
 
-    public void processImage(float[] audioData){
-
-        MelSpectrogram melSpectrogram = new MelSpectrogram();
-        float[][] melspec = melSpectrogram.process(audioData);
-
-        int height = melspec.length; // Width of the image
-        int width = melspec[0].length; // Height of the image
-
-        int[] values = {195, 193, 109, 71, 53, 43, 35, 30, 27, 24, 21, 19, 18, 16, 15, 14, 14, 12, 12, 11, 11, 10, 10, 9, 9, 8, 8, 8, 8, 7, 7, 7, 7, 6, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-
-        int sum = 0;
-        for (int num : values) {
-            sum += num;
-        }
-
-        // Create a blank bitmap with the specified width and height
-        Bitmap image = Bitmap.createBitmap(width, sum, Bitmap.Config.ARGB_8888);
-
-        int bigindex;
-
-        // Loop through each pixel in the float array and set the corresponding pixel in the bitmap
-        for (int y = 0; y < width; y++) {
-            bigindex = sum-1;
-            for (int x = 0; x < height; x++) {
-                //TODO: deze berekening correcter maken
-                int index = (int) (melspec[x][y]+100)* cM.getColorMapperSize()/100;
-
-                int color = cM.getColor(index);
-
-                for(int z = 0; z < values[x]; z++){
-                    image.setPixel(y, bigindex, color);// Set pixel color in the bitmap
-                    bigindex -= 1;
-                }
-            }
-        }
-
-        image = scaleBitmap(image);
-
-        int dimension = Math.min(image.getWidth(), image.getHeight());
-        image = ThumbnailUtils.extractThumbnail(image, dimension, dimension);
-
-        image = Bitmap.createScaledBitmap(image, imageSize, imageSize, true);
-
-        // Now, you can use the bitmap in your ImageView
-        imageView.setImageBitmap(image);
-
-
-        try {
-            classifySound(image, MobileModelV2.newInstance(context));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public Measurement processImage(InputStream inputStream, File wavFile, int location, int epoch) throws IOException {
+    public Pair<float[], Bitmap> processImage(InputStream inputStream) throws IOException {
         float[] audioData = WavFileReader.readWavFile(inputStream);
 
         MelSpectrogram melSpectrogram = new MelSpectrogram();
@@ -151,7 +98,7 @@ public class ModelHandler extends AppCompatActivity {
 
         try {
             float[] confidences = classifySound(image, MobileModelV2.newInstance(context));
-            return new Measurement(image, confidences, wavFile, location, epoch);
+            return new Pair<>(confidences, image);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
