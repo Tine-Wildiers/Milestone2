@@ -99,6 +99,9 @@ public class MainActivity extends AppCompatActivity {
 
         wavfile = R.raw.w1403_lr_25;
         pngfile = R.raw.p1403_lr_25;
+
+        realtime.pause();
+        realtime.startListening();
     }
 
     public void onBtnStartClicked(View view){
@@ -108,7 +111,8 @@ public class MainActivity extends AppCompatActivity {
             }
             listening = true;
             //Startup van subscription start ook recording op via tryStart()
-            realtime.startListening();
+            //realtime.startListening();
+            realtime.resume();
         }
         else{
             if(realtime.recorder.getPaused()){
@@ -121,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void onBtnStopClicked(View view) throws IOException {
         if(listening){
+            realtime.pause();
             calculating = true;
             firstTry = false;
             listening = false;
@@ -291,6 +296,10 @@ public class MainActivity extends AppCompatActivity {
         imageView.setImageBitmap(m.image);
     }
      */
+
+    public void onBtnTestClicked(View view){
+        realtime.pause();
+    }
 
     public void onBtnTestModelClicked(View view){
         int imageSize = 224;

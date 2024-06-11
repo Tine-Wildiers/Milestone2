@@ -113,8 +113,8 @@ public class RealTimeGraphs {
 
     public File[] finishMeasurement(int location){
         //Stop recording
-        recorder.setPaused(true);
-        recorder.tryStop();
+        //recorder.setPaused(true);
+        //recorder.tryStop();
         
         //Store audio files per location
         String timeStamp = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.getDefault()).format(new Date());
