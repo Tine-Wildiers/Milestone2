@@ -23,13 +23,15 @@ public class Recorder {
     protected Observable<AudioData> dataObservable;
     private volatile boolean isStarted = false;
     public volatile boolean isPaused = false;
-    private AudioTrack audioTrack;
+    public AudioTrack audioTrack;
 
     private final int sampleRate;
     private final int minBufferSize;
 
     private AudioRecord audioRecord;
     private AudioData audioData;
+
+    private FakeRecorder fakeRecorder = new FakeRecorder();
 
     private long time = 0L;
 
@@ -85,6 +87,7 @@ public class Recorder {
         if(this.audioRecord.getState() != AudioRecord.STATE_INITIALIZED) {
             throw new UnsupportedOperationException("This devices doesn't support AudioRecord");
         }
+
     }
 
     public Recorder() {
@@ -92,6 +95,7 @@ public class Recorder {
     }
 
     protected void onStart() {
+        //fakeRecorder.onStop();
         audioRecord.startRecording();
         audioTrack.play();
     }
@@ -99,6 +103,7 @@ public class Recorder {
     protected void onStop() {
         audioRecord.stop();
         audioTrack.stop();
+        //fakeRecorder.onStart();
     }
 
     protected AudioData onNext() {

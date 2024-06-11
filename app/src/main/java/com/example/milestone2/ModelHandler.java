@@ -129,7 +129,6 @@ public class ModelHandler extends AppCompatActivity {
         for (int y = 0; y < width; y++) {
             bigindex = sum-1;
             for (int x = 0; x < height; x++) {
-                //TODO: deze berekening correcter maken
                 int index = (int) (melspec[x][y]+100)* cM.getColorMapperSize()/100;
 
                 int color = cM.getColor(index);

@@ -113,10 +113,6 @@ public class RealTimeGraphs {
     }
 
     void resetRealTimeGraphs(){
-        //TODO: kijken welke parameters gereset moeten worden
-        //TODO: spectrogram resetten
-
-
         //Gebeurt al in de button Stop methode
         //dataProvider.resetAudioRecord();
         //dataProvider.resetRecorder();

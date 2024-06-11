@@ -18,10 +18,10 @@ public class MelSpectrogram {
         // 1 librosa.load = y
 
         // 2 librosa.feature.melspectrogram
-        float [][] melSpectrogram = melSpectrogram(y); //Klopt
+        float [][] melSpectrogram = melSpectrogram(y);
 
         // 3 librosa.power_to_db
-        final float[][] specTroGram = powerToDb(melSpectrogram, 100); //Klopt
+        final float[][] specTroGram = powerToDb(melSpectrogram, 100);
 
         return specTroGram;
     }
@@ -31,8 +31,8 @@ public class MelSpectrogram {
         // 2.2 mel_basis
         // 2.3 melspec = melfilters x spectrogram
 
-        float[][] melBasis = melFilter(); //256x1025  = deze is juist
-        float[][] spectro = stftMagSpec(y); //1025x403  = deze is juist buiten de randwaarden (maar boeit ni?)
+        float[][] melBasis = melFilter(); //256x1025
+        float[][] spectro = stftMagSpec(y); //1025x403
         float[][] melS = new float[melBasis.length][spectro[0].length]; //256x403
 
         for (int i = 0; i < melBasis.length; i++){

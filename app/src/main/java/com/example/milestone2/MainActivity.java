@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.media.ThumbnailUtils;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -31,17 +32,16 @@ import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 import java.util.stream.IntStream;
 
-//TODO: make sure that app works on new device
-//TODO: scaling should take device into account
 public class MainActivity extends AppCompatActivity {
-    int testClass = 3;
     int interval = 5;
     int wavfile;
     int pngfile;
@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
     ImageView imageView;
     private boolean listening = false;
+    private boolean calculating = false;
     Handler handler = new Handler();
     Runnable saveScatterChartRunnable = new Runnable() {
         @Override
@@ -96,24 +97,9 @@ public class MainActivity extends AppCompatActivity {
         setRadioButtons();
         setRadioButtonColor(location, Color.BLUE);
 
-        if(testClass == 0){
-            wavfile = R.raw.wsl_1_1400_0;
-            pngfile = R.raw.sl_1_1400_0;
-        }
-        else if(testClass==1){
-            wavfile = R.raw.wpl_7_1400_1;
-            pngfile = R.raw.pl_7_1400_1;
-        }
-        else if(testClass==2){
-            wavfile = R.raw.wll_15_1403_2;
-            pngfile = R.raw.ll_15_1403_2;
-        }
-        else{
-            //wavfile = R.raw.wbr_19_1402_3;
-            //pngfile = R.raw.br_19_1402_3;
-            wavfile = R.raw.wlr_25_1403_3;
-            pngfile = R.raw.lr_25_1403_3;
-        }
+        wavfile = R.raw.w1403_lr_25;
+        pngfile = R.raw.p1403_lr_25;
+
     }
 
     public void updateButtonColors(int showImage) {
@@ -194,6 +180,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void onBtnStopClicked(View view) throws IOException {
         if(listening==true){
+            calculating = true;
             firstTry = false;
             listening = false;
             handler.removeCallbacksAndMessages(null);
@@ -202,7 +189,9 @@ public class MainActivity extends AppCompatActivity {
             realtime.dataProvider.resetAudioRecord();
             realtime.resetIndices();
 
-            String timeStamp = new SimpleDateFormat("yyyy_MM_dd_HH_mm", Locale.getDefault()).format(new Date());
+            String timeStamp = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.getDefault()).format(new Date());
+
+            realtime.dataProvider.saveAudioToFile(timeStamp + "_loc_" + location + ".wav", realtime.audioDSy);
 
             ShortValues[] epochs = realtime.audioDSy.splitIntoThree();
             File[] files = new File[3];
@@ -222,12 +211,25 @@ public class MainActivity extends AppCompatActivity {
             showResults();
 
             realtime.audioDSy.clear();
+            calculating = false;
         }
     }
 
     public void onBtnDLClicked(View view) throws IOException {
+
+        //onBtnTestModelClicked(view);
+
         InputStream inputStream = getResources().openRawResource(wavfile);
-        modelHandler.preProcessImage(inputStream);
+        Measurement m = modelHandler.preProcessImage(inputStream);
+        Log.d("Model Testing", "Confidences WAV: " + Arrays.toString(m.confidences));
+
+        saveBitmapAsPng(m.image, "preprocessingExample.png");
+
+        RelativeLayout relativeLayout = findViewById(R.id.mlresults);
+        relativeLayout.setVisibility(View.VISIBLE);
+        imageView.setImageBitmap(m.image);
+
+
     }
 
     public void onBtnTestModelClicked(View view){
@@ -237,17 +239,17 @@ public class MainActivity extends AppCompatActivity {
         int dimension = Math.min(image.getWidth(), image.getHeight());
         image = ThumbnailUtils.extractThumbnail(image, dimension, dimension);
         image = Bitmap.createScaledBitmap(image, imageSize, imageSize, false);
-        imageView.setImageBitmap(image);
 
         try {
-            modelHandler.classifySound(image, MobileModelV2.newInstance(getApplicationContext()));
+            float[] confidences = modelHandler.classifySound(image, MobileModelV2.newInstance(getApplicationContext()));
+            Log.d("Model Testing", "Confidences PNG: " + Arrays.toString(confidences));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     public void onBtnNextLocClicked(View view) throws IOException {
-        if(!listening) {
+        if(!listening && !calculating) {
             RelativeLayout relativeLayout = findViewById(R.id.mlresults);
             relativeLayout.setVisibility(View.INVISIBLE);
 
@@ -427,6 +429,23 @@ public class MainActivity extends AppCompatActivity {
         }
         else{
             return false;
+        }
+    }
+
+    public void saveBitmapAsPng(Bitmap bitmap, String fileName) {
+
+        File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
+        File stethoscopeDataDirectory = new File(directory, "StethoscopeData");
+
+        File file = new File(stethoscopeDataDirectory, fileName);
+
+        try {
+            FileOutputStream outputStream = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream); // 100 for full quality
+            outputStream.flush();
+            outputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
