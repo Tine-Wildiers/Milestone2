@@ -1,29 +1,25 @@
 package com.example.milestone2.types;
 
 public final class ShortValues {
-    private short[] a;
-    private int b;
-
-    public ShortValues() {
-        this.a = new short[0];
-    }
+    private short[] itemsArray;
+    private int arraySize;
 
     public ShortValues(int capacity) {
         if (capacity >= 0) {
-            this.a = new short[capacity];
+            this.itemsArray = new short[capacity];
         } else {
             throw new IllegalArgumentException("capacity < 0");
         }
     }
 
     public ShortValues(short[] items) {
-        this.a = items;
-        this.b = items.length;
+        this.itemsArray = items;
+        this.arraySize = items.length;
     }
 
     private void b(int var1) {
         short[] var2;
-        if ((var2 = this.a).length < var1) {
+        if ((var2 = this.itemsArray).length < var1) {
             int var3;
             if (var2.length == 0) {
                 var3 = 4;
@@ -37,24 +33,23 @@ public final class ShortValues {
 
             this.a(var1);
         }
-
     }
 
     private void a(int var1) {
         int var2;
-        if (var1 >= (var2 = this.b)) {
+        if (var1 >= (var2 = this.arraySize)) {
             if (var1 != var2) {
                 if (var1 > 0) {
                     short[] var3 = new short[var1];
                     if (var2 > 0) {
-                        System.arraycopy(this.a, 0, var3, 0, var2);
+                        System.arraycopy(this.itemsArray, 0, var3, 0, var2);
                     }
 
-                    this.a = var3;
+                    this.itemsArray = var3;
                     return;
                 }
 
-                this.a = new short[0];
+                this.itemsArray = new short[0];
             }
 
         } else {
@@ -63,34 +58,7 @@ public final class ShortValues {
     }
 
     public short[] getItemsArray() {
-        return this.a;
-    }
-
-    public void add(short value) {
-        this.b(this.b + 1);
-        short[] var10000 = this.a;
-        int var2;
-        this.b = (var2 = this.b) + 1;
-        var10000[var2] = value;
-    }
-
-    public void add(int location, short value) {
-        int var3;
-        if (location <= (var3 = this.b)) {
-            this.b(var3 + 1);
-            if (location < (var3 = this.b)) {
-                short[] var10000 = this.a;
-                int var10002 = var3;
-                var3 = location + 1;
-                int var4 = var10002 - location;
-                System.arraycopy(var10000, location, var10000, var3, var4);
-            }
-
-            this.a[location] = value;
-            int var10001 = this.b++;
-        } else {
-            throw new ArrayIndexOutOfBoundsException("location");
-        }
+        return this.itemsArray;
     }
 
     public void add(short[] values) {
@@ -103,65 +71,36 @@ public final class ShortValues {
         ShortValues var10000 = this;
         ShortValues var10001 = this;
         ShortValues var10004 = this;
-        this.b(this.b + count);
-        short[] var4 = this.a;
-        System.arraycopy(values, startIndex, var4, var10004.b, count);
-        var10000.b = var10001.b + count;
-    }
-
-    public void set(int location, short value) {
-        if (location < this.b) {
-            this.a[location] = value;
-        } else {
-            throw new ArrayIndexOutOfBoundsException("location");
-        }
+        this.b(this.arraySize + count);
+        short[] var4 = this.itemsArray;
+        System.arraycopy(values, startIndex, var4, var10004.arraySize, count);
+        var10000.arraySize = var10001.arraySize + count;
     }
 
     public short get(int index) {
-        if (index < this.b) {
-            return this.a[index];
+        if (index < this.arraySize) {
+            return this.itemsArray[index];
         } else {
             throw new ArrayIndexOutOfBoundsException("index");
         }
     }
 
     public int size() {
-        return this.b;
+        return this.arraySize;
     }
 
     public void setSize(int size) {
         this.b(size);
-        this.b = size;
-    }
-
-    public void remove(int location) {
-        int var2;
-        if (location < (var2 = this.b)) {
-            ShortValues var10000 = this;
-            int var3;
-            this.b = var3 = var2 - 1;
-            short[] var4 = var10000.a;
-            int var10002 = var3;
-            var3 = location + 1;
-            var2 = var10002 - location;
-            System.arraycopy(var4, var3, var4, location, var2);
-        } else {
-            throw new ArrayIndexOutOfBoundsException("location");
-        }
+        this.arraySize = size;
     }
 
     public void clear() {
-        this.b = 0;
-    }
-
-    public void disposeItems() {
-        this.clear();
-        this.a = new short[0];
+        this.arraySize = 0;
     }
 
     public ShortValues[] splitIntoThree() {
-        int partSize = b / 3;
-        int remainder = b % 3;
+        int partSize = arraySize / 3;
+        int remainder = arraySize % 3;
 
         ShortValues[] result = new ShortValues[3];
 
@@ -175,10 +114,5 @@ public final class ShortValues {
         }
 
         return result;
-    }
-
-
-    public Class<Short> getValuesType() {
-        return Short.class;
     }
 }

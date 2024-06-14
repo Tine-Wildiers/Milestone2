@@ -1,12 +1,5 @@
 package com.example.milestone2.readers;
 
-import android.content.Context;
-import android.media.AudioFormat;
-import android.media.AudioManager;
-import android.media.AudioTrack;
-
-import com.example.milestone2.R;
-
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -14,18 +7,13 @@ import java.nio.ByteOrder;
 public class WavFileReader {
     public static float[] readWavFile(InputStream inputStream) {
         try {
-            // Open the WAV file from the resources
-
-
             byte[] header = new byte[44];
             inputStream.read(header, 0, header.length);
 
-            int sampleRate = ByteBuffer.wrap(header, 24, 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
             int channels = 1;
             int bitsPerSample = 16;
 
             int numSamples = (inputStream.available() - 44) / (channels * (bitsPerSample / 8));
-            //TODO: valt te overwegen om hier floats te gebruiken, gebruikt helft van het geheugen
             double[] waveform = new double[numSamples];
 
             byte[] data = new byte[numSamples * channels * (bitsPerSample / 8)];

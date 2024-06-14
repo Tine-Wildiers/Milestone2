@@ -1,7 +1,5 @@
 package com.example.milestone2.helpers;
 
-import com.example.milestone2.helpers.FFT;
-
 public class MelSpectrogram {
     private final static float    fMin                 = 0.0F;
     private final static int       n_fft                = 2048;

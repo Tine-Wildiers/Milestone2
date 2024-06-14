@@ -45,25 +45,34 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.stream.IntStream;
 
+/**
+ * Main class that implements the app user interface and basic logic.
+ */
 public class MainActivity extends AppCompatActivity {
-    int wavfile;
-    int pngfile;
+    int wavfile = R.raw.w1403_lr_25;
+    int pngfile = R.raw.p1403_lr_25;
+
     int location = 0;
     boolean firstTry = true;
 
-    private RealTimeGraphs realtime;
-    private ModelHandler modelHandler;
-    private final Measurement[] measurements = new Measurement[24];
-    private ColorMapper colorMapper;
+    //State variables
+    private boolean listening = false; //true when real time recording is ongoing
+    private boolean calculating = false; //true when deep learning model is processing
+    boolean live = true; //false when the realtime button is pressed off
 
-    boolean live = true;
+    private RealTimeGraphs realtime; //Class that handles all the real time events
+    private ModelHandler modelHandler; //Class that handles the model input and output
+    private final Measurement[] measurements = new Measurement[24]; //Storage for finished measurements
 
-    ImageView imageView;
-    private boolean listening = false;
-    private boolean calculating = false;
+    ImageView imageView; //Reference to the input image of the model
 
+
+    /**
+     * Sets up the application and starts audio playback.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //Implement button logic
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         findViewById(R.id.image1button).setBackgroundTintMode(PorterDuff.Mode.SRC_ATOP);
@@ -71,23 +80,6 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.image3button).setBackgroundTintMode(PorterDuff.Mode.SRC_ATOP);
         updateButtonColors(1);
         imageView = findViewById(R.id.imageView);
-
-        colorMapper = null;
-        try {
-            colorMapper = new ColorMapper(getResources().openRawResource(R.raw.rgb_values));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        realtime = new RealTimeGraphs(colorMapper,findViewById(R.id.timechart),findViewById(R.id.scatterchart));
-        modelHandler = new ModelHandler(findViewById(R.id.result), findViewById(R.id.confidence), imageView, colorMapper, getApplicationContext());
-
-        setRadioButtons();
-        setRadioButtonColor(location, Color.BLUE);
-
-        wavfile = R.raw.w1403_lr_25;
-        pngfile = R.raw.p1403_lr_25;
-
         Switch switch1 = findViewById(R.id.switch1);
         switch1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -96,11 +88,27 @@ public class MainActivity extends AppCompatActivity {
                 switch1.setEnabled(false);
             }
         });
+        setRadioButtons();
+        setRadioButtonColor(location, Color.BLUE);
 
+        //Setup main classes - RealTimeGraph and ModelHandler
+        ColorMapper colorMapper = null;
+        try {
+            colorMapper = new ColorMapper(getResources().openRawResource(R.raw.rgb_values));
+            realtime = new RealTimeGraphs(colorMapper,findViewById(R.id.timechart),findViewById(R.id.scatterchart));
+            modelHandler = new ModelHandler(findViewById(R.id.result), findViewById(R.id.confidence), imageView, colorMapper, getApplicationContext());
+        } catch (IOException e) {
+            throw new RuntimeException(e); //Exception for when there is an error with the file
+        }
+
+        //Start audio playback
         realtime.pause();
         realtime.startListening();
     }
 
+    /**
+     * Checks if recording is already ongoing, if not, starts recording and real time graphs.
+     */
     public void onBtnStartClicked(View view){
         if(!listening){
             if(!firstTry){
@@ -117,6 +125,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Stops real time graphs and saves recent recordings as wav files.
+     * If real time graphs are turned on, recordings are processed by the model and results are shown.
+     */
     public void onBtnStopClicked(View view) throws IOException {
         if(listening){
             realtime.pause();
@@ -148,7 +160,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
+    /**
+     * Implements the logic behind the dots that represent auscultation location.
+     * When all locations have been measured, this method starts up the Results page.
+     */
     public void onBtnNextLocClicked(View view) throws IOException {
         if(!listening && !calculating) {
             RelativeLayout relativeLayout = findViewById(R.id.mlresults);
@@ -185,11 +200,13 @@ public class MainActivity extends AppCompatActivity {
             }
 
             setRadioButtonColor(location, Color.BLUE);
-
             realtime.resetRealTimeGraphs();
         }
     }
 
+    /**
+     * Shows the input, final classification and confidences of the deep learning model prediction.
+     */
     private void showResults(){
         String[] classes = {"0", "1", "2", "3"};
         Measurement m1 = measurements[location*3];
@@ -233,6 +250,10 @@ public class MainActivity extends AppCompatActivity {
         RelativeLayout relativeLayout = findViewById(R.id.mlresults);
         relativeLayout.setVisibility(View.VISIBLE);
     }
+
+    /**
+     * Helper Methods
+     */
 
     public void updateButtonColors(int showImage) {
         Log.d("ButtonColors", "UpdateButtonColors called for image "+showImage);
@@ -290,10 +311,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void onBtnZoomOutClicked(View view) {
         realtime.zoom(1);
-    }
-
-    public void onBtnTestClicked(View view){
-        realtime.pause();
     }
 
     private void setRadioButtons(){

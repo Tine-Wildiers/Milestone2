@@ -23,22 +23,16 @@ import java.util.Locale;
 public class TimeDomain {
     public List<Entry> timePlot = new ArrayList<>();
     private LineChart timeChart;
-    private final int sampleRate;
-    private final int maxSize = 1033; //In setup method nog aanpassing nodig als ge deze naar 2000 doet bvb.
+    private final int maxSize = 1033;
     private int zoomLevel = 1500;
     public int index = 0;
 
-    public TimeDomain(int sampleRate) {
-        this.sampleRate = sampleRate;
+    public TimeDomain() {
     }
-
 
     public void setTimeChart(LineChart tC) {
         timeChart = tC;
-        setupTimeChart();
-    }
 
-    public void setupTimeChart(){
         //General setup
         Description description = new Description();
         description.setEnabled(false);
@@ -60,23 +54,6 @@ public class TimeDomain {
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setDrawGridLines(false);
         xAxis.setDrawAxisLine(false);
-        //xAxis.setGridLineWidth(1f);
-        //xAxis.setGridColor(Color.GRAY);
-
-        /*
-        // Setup X axis labels
-        float[] gridLinePositions = {172f, 344f, 516f, 860f, 1032f};
-        List<String> timeLabels = new ArrayList<>();
-        for (int i = 0; i < gridLinePositions.length; i++) {
-            timeLabels.add(String.format(Locale.getDefault(), "%d", i));
-        }
-
-        xAxis.setGranularity(1f);
-        xAxis.setGranularityEnabled(true);
-        xAxis.setValueFormatter(new IndexAxisValueFormatter(timeLabels));
-
-
-         */
         setXLabels();
 
         // Initiate dataset
@@ -97,13 +74,12 @@ public class TimeDomain {
     }
 
     protected void updateTimeGraph(int timeindex){
-
         while (timePlot.size() > maxSize) {
             timePlot.remove(0);
         }
 
         XAxis xAxis = timeChart.getXAxis();
-        xAxis.removeAllLimitLines(); // Remove any existing limit lines
+        xAxis.removeAllLimitLines();
 
         setXLabels();
 
@@ -111,8 +87,6 @@ public class TimeDomain {
         limitLine.setLineColor(Color.RED);
         limitLine.setLineWidth(2f);
         xAxis.addLimitLine(limitLine);
-
-
 
         // Update dataSet
         LineDataSet dataSet = new LineDataSet(timePlot, "SoundWave");
@@ -125,21 +99,9 @@ public class TimeDomain {
         timeChart.invalidate();
     }
 
-    public static int[] getVerticalGridLineLocations(int rate, int minRange, int maxRange) {
-        int start = (minRange % rate == 0) ? minRange : minRange + (rate - (minRange % rate));
-        int count = (maxRange - start) / rate + 1;
-        int[] multiples = new int[count];
-
-        for (int i = 0; i < count; i++) {
-            multiples[i] = start + i * rate;
-        }
-        return multiples;
-    }
-
     void resetTimePlot(){
         index=0;
         timePlot = new ArrayList<>();
-        //int i = -256000;
         int i = 0;
         while (timePlot.size() !=  maxSize) {
             timePlot.add(new Entry(i, 0.0f));
@@ -198,5 +160,4 @@ public class TimeDomain {
             xAxis.addLimitLine(limitLine);
         }
     }
-
 }

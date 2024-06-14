@@ -16,12 +16,7 @@ import java.util.List;
 
 public class FrequencyDomain {
     private ScatterChart spectrogramChart;
-
-    public int getSpectogramYRes() {
-        return spectogramYRes;
-    }
-
-    private final int spectogramXRes = 128;  //zou dan evenveel moeten tonen als time graph
+    private final int spectogramXRes = 128;
     private final int spectogramYRes = 48;
     MyScatterDataSet spectrogramDS;
     List<Integer> colors = new ArrayList<>();
@@ -31,12 +26,10 @@ public class FrequencyDomain {
     public FrequencyDomain() {
     }
 
-    public void setSpectrogramChart(ScatterChart spectrogramChart) {
+    public void setSpectrogramChart(ScatterChart spectrogramChart, ColorMapper cM) {
         this.spectrogramChart = spectrogramChart;
-        setupSpectrogramGraph();
-    }
+        this.cM = cM;
 
-    public void setupSpectrogramGraph(){
         spectrogramChart.getDescription().setEnabled(false);
         spectrogramChart.getLegend().setEnabled(false);
         spectrogramChart.setTouchEnabled(false);
@@ -59,7 +52,6 @@ public class FrequencyDomain {
         ScatterData scatterData = new ScatterData(spectrogramDS);
 
         XAxis xAxis = spectrogramChart.getXAxis();
-        //xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setEnabled(false);
         YAxis yAxis = spectrogramChart.getAxisLeft();
         yAxis.setAxisLineWidth(2f);
@@ -72,8 +64,6 @@ public class FrequencyDomain {
         spectrogramChart.setData(scatterData);
         spectrogramChart.invalidate();
         spectrogramChart.getAxisLeft().setDrawLabels(false);
-
-
         spectrogramChart.buildDrawingCache();
     }
 
@@ -86,12 +76,9 @@ public class FrequencyDomain {
         for (int i = 0; i < spectogramYRes; i++) {
             index = Math.min((int) ((downScaledArray[i] +50) * cM.getColorMapperSize() / 100f), cM.getColorMapperSize() - 1);
             int color = cM.getColor(index);
-
             colors.set(movingInd, color);
             movingInd+=1;
         }
-
-
         return movingInd;
     }
 
@@ -100,19 +87,6 @@ public class FrequencyDomain {
         ScatterData scatterData = new ScatterData(spectrogramDS);
         spectrogramChart.setData(scatterData);
         spectrogramChart.invalidate();
-    }
-
-    private double interpolateHue(double yValue) {
-        double normalizedY = (yValue +20) / 100f;
-        return 240f * (1f - normalizedY);
-    }
-
-    public void setColorMapper(ColorMapper cM) {
-        this.cM = cM;
-    }
-
-    int getMaxSize(){
-        return spectogramXRes*spectogramYRes;
     }
 
     public void resetFrequencyPlot() {
@@ -130,4 +104,13 @@ public class FrequencyDomain {
         colors=newcolors;
         renderSpectrogram();
     }
+
+    int getMaxSize(){
+        return spectogramXRes*spectogramYRes;
+    }
+
+    public int getSpectogramYRes() {
+        return spectogramYRes;
+    }
+
 }

@@ -1,44 +1,44 @@
 package com.example.milestone2;
 
 import android.util.Log;
-
 import com.example.milestone2.helpers.Radix2FFT;
 import com.example.milestone2.helpers.Recorder;
 import com.example.milestone2.types.DoubleValues;
 import com.example.milestone2.types.ShortValues;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.charts.ScatterChart;
-import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.trello.rxlifecycle3.android.FragmentEvent;
 import com.trello.rxlifecycle3.android.RxLifecycleAndroid;
-
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-
 import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.BehaviorSubject;
 
+/**
+ * Class that implements the two real time graphs.
+ */
 public class RealTimeGraphs {
-    Recorder recorder = new Recorder();
-    private final BehaviorSubject<Boolean> isPaused = BehaviorSubject.createDefault(false);
-    private final BehaviorSubject<FragmentEvent> lifecycleSubject = BehaviorSubject.create();
-    private final Radix2FFT fft = new Radix2FFT(recorder.getBufferSize());
-    private final int sampleRate = recorder.getSampleRate();
-    public TimeDomain timeDomain = new TimeDomain(sampleRate);
-    public FrequencyDomain frequencyDomain = new FrequencyDomain();
-    private int slowDown = 0;
-    private final DoubleValues fftData = new DoubleValues();
-    ShortValues rawData = new ShortValues(recorder.getBufferSize());
+    Recorder recorder = new Recorder(); //Object that will provide the real time data
+
+    private final BehaviorSubject<Boolean> isPaused = BehaviorSubject.createDefault(false); //Decides if real time graphs are producing an output
+    private final BehaviorSubject<FragmentEvent> lifecycleSubject = BehaviorSubject.create(); //Allows for continuous monitoring of the Recorder object
+    private final Radix2FFT fft = new Radix2FFT(recorder.getBufferSize()); //Class that computes the real time spectrogram
+
     private int timeindex = 0;
     private int frequencyindex = 0;
+    ShortValues rawData = new ShortValues(recorder.getBufferSize());
+    private final DoubleValues fftData = new DoubleValues();
+
+    public TimeDomain timeDomain = new TimeDomain(); //Object that handles the time graph
+    public FrequencyDomain frequencyDomain = new FrequencyDomain(); //Object that handles the spectrogram graph
+
 
     public RealTimeGraphs(ColorMapper cM, LineChart timeChart, ScatterChart spectrogram) {
         timeDomain.setTimeChart(timeChart);
-        frequencyDomain.setColorMapper(cM);
-        frequencyDomain.setSpectrogramChart(spectrogram);
+        frequencyDomain.setSpectrogramChart(spectrogram, cM);
     }
 
     protected void startListening() {
@@ -46,9 +46,10 @@ public class RealTimeGraphs {
                 .filter(audioData -> !isPaused.getValue())
                 .doOnNext(audioData -> {
                     try {
+                        //update the raw data array
                         rawData.add(audioData.yData.getItemsArray());
 
-                        // ----- Update Time Plot -----
+                        //update the time plot
                         if (timeindex > timeDomain.getMaxSize() - 8) {
                             timeindex = 0;
                             timeDomain.updateFrameIndex();
@@ -65,22 +66,16 @@ public class RealTimeGraphs {
 
                         timeDomain.updateTimeGraph(timeindex);
 
-                        // ----- Update Frequency Plot -----
+                        //calculate spectrogram
                         fft.run(audioData.yData, fftData);
 
-                        // ----- Update Spectrogram Plot -----
+                        //update spectrogram
                         if (frequencyindex > frequencyDomain.getMaxSize() - 1) {
                             frequencyindex = 0;
                         }
-
                         double[] downScaledArray = downscaleArray(frequencyDomain.getSpectogramYRes());
                         frequencyindex = frequencyDomain.updateSpectrogram(downScaledArray, frequencyindex);
-
-                        if (slowDown % 3 == 0) {
-                            frequencyDomain.renderSpectrogram();
-                        }
-
-                        slowDown++;
+                        frequencyDomain.renderSpectrogram();
 
                     } catch (Exception e) {
                         Log.e("Error", "An error occurred: " + e.getMessage());
