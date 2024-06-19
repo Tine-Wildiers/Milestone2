@@ -31,6 +31,7 @@ public class RealTimeGraphs {
     private int frequencyindex = 0;
     ShortValues rawData = new ShortValues(recorder.getBufferSize());
     private final DoubleValues fftData = new DoubleValues();
+    private int slowDown = 0;
 
     public TimeDomain timeDomain = new TimeDomain(); //Object that handles the time graph
     public FrequencyDomain frequencyDomain = new FrequencyDomain(); //Object that handles the spectrogram graph
@@ -75,7 +76,12 @@ public class RealTimeGraphs {
                         }
                         double[] downScaledArray = downscaleArray(frequencyDomain.getSpectogramYRes());
                         frequencyindex = frequencyDomain.updateSpectrogram(downScaledArray, frequencyindex);
-                        frequencyDomain.renderSpectrogram();
+                        //frequencyDomain.renderSpectrogram();
+
+                        if(slowDown%3 == 0){
+                            frequencyDomain.renderSpectrogram();
+                        }
+                        slowDown++;
 
                     } catch (Exception e) {
                         Log.e("Error", "An error occurred: " + e.getMessage());

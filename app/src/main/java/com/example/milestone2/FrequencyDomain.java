@@ -68,18 +68,16 @@ public class FrequencyDomain {
     }
 
     public int updateSpectrogram(double[] downScaledArray, int ind){
-        while(colors.size() > spectogramYRes*spectogramXRes){
-            colors.remove(spectogramYRes*spectogramXRes);
-        }
 
-        int movingInd = ind;
+
         for (int i = 0; i < spectogramYRes; i++) {
             index = Math.min((int) ((downScaledArray[i] +50) * cM.getColorMapperSize() / 100f), cM.getColorMapperSize() - 1);
             int color = cM.getColor(index);
-            colors.set(movingInd, color);
-            movingInd+=1;
+            colors.set(ind, color);
+            ind+=1;
         }
-        return movingInd;
+
+        return ind;
     }
 
     public void renderSpectrogram(){

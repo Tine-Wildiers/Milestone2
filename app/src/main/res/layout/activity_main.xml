@@ -163,7 +163,7 @@
                     android:layout_height="34dp"
                     android:layout_alignParentStart="true"
                     android:layout_alignParentTop="true"
-                    android:layout_marginStart="196dp"
+                    android:layout_marginStart="160dp"
                     android:layout_marginTop="0dp"
                     android:onClick="onBtnZoomInClicked"
                     android:background="@drawable/roundbutton"
@@ -179,7 +179,7 @@
                     android:layout_height="34dp"
                     android:layout_alignParentStart="true"
                     android:layout_alignParentTop="true"
-                    android:layout_marginStart="196dp"
+                    android:layout_marginStart="160dp"
                     android:layout_marginTop="0dp"
                     android:onClick="onBtnZoomOutClicked"
                     android:background="@drawable/roundbutton"
@@ -191,11 +191,11 @@
 
                 <Switch
                     android:id="@+id/switch1"
-                    android:layout_width="136dp"
+                    android:layout_width="250dp"
+                    android:layout_height="34dp"
                     android:layout_marginStart="100dp"
-                    android:layout_height="10dp"
                     android:layout_weight="1"
-                    android:text="RealTime?"/>
+                    android:text="Disable real-time predictions?" />
 
 
             </LinearLayout>
